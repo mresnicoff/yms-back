@@ -1,0 +1,322 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum OperationType {
+  LOAD
+  UNLOAD
+}
+
+enum DockStatus {
+  FREE
+  OCCUPIED
+  OUT_OF_SERVICE
+}
+
+enum AppointmentStatus {
+  SCHEDULED
+  CHECKED_IN
+  WAITING_DOCK
+  IN_OPERATION
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+enum DockOperationStatus {
+  ASSIGNED
+  IN_PROGRESS
+  FINISHED
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  BLOCKED
+}
+
+model Warehouse {
+  id String @id @default(uuid())
+
+  code String @unique
+  name String
+
+  address String?
+
+  active Boolean @default(true)
+
+  dockGroups   DockGroup[]
+  appointments Appointment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model DockGroup {
+  id String @id @default(uuid())
+
+  warehouseId String
+  warehouse   Warehouse @relation(fields: [warehouseId], references: [id])
+
+  code String @unique
+  name String
+
+  description String?
+
+  active Boolean @default(true)
+
+  docks        Dock[]
+  appointments Appointment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([warehouseId])
+}
+
+model Dock {
+  id String @id @default(uuid())
+
+  code String @unique
+
+  description String?
+
+  groupId String
+  group   DockGroup @relation(fields: [groupId], references: [id])
+
+  status DockStatus @default(FREE)
+
+  operationType OperationType
+
+  active Boolean @default(true)
+
+  schedules  DockSchedule[]
+  operations DockOperation[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([groupId])
+  @@index([status])
+}
+
+model DockSchedule {
+  id String @id @default(uuid())
+
+  dockId String
+  dock   Dock   @relation(fields: [dockId], references: [id])
+
+  weekday Int
+
+  startTime String
+  endTime   String
+
+  active Boolean @default(true)
+
+  @@index([dockId])
+  @@index([weekday])
+}
+
+model VehicleType {
+  id String @id @default(uuid())
+
+  name String @unique
+
+  loadingMinutes   Int
+  unloadingMinutes Int
+
+  appointments Appointment[]
+  trucks       Truck[]
+}
+
+model Supplier {
+  id String @id @default(uuid())
+
+  name String
+
+  taxId String @unique
+
+  email String?
+
+  appointments Appointment[]
+
+  users User[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Truck {
+  id String @id @default(uuid())
+
+  plate String @unique
+
+  vehicleTypeId String
+  vehicleType   VehicleType @relation(fields: [vehicleTypeId], references: [id])
+
+  checkIns CheckIn[]
+
+  createdAt DateTime @default(now())
+}
+
+model Appointment {
+  id String @id @default(uuid())
+
+  supplierId String
+  supplier   Supplier @relation(fields: [supplierId], references: [id])
+
+  vehicleTypeId String
+  vehicleType   VehicleType @relation(fields: [vehicleTypeId], references: [id])
+
+  warehouseId String
+  warehouse   Warehouse @relation(fields: [warehouseId], references: [id])
+
+  dockGroupId String
+  dockGroup   DockGroup @relation(fields: [dockGroupId], references: [id])
+
+  operationType OperationType
+
+  startTime DateTime
+  endTime   DateTime
+
+  status AppointmentStatus @default(SCHEDULED)
+
+  checkIn CheckIn?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([startTime])
+  @@index([status])
+  @@index([warehouseId])
+  @@index([dockGroupId])
+  @@index([dockGroupId, startTime])
+}
+
+model CheckIn {
+  id String @id @default(uuid())
+
+  appointmentId String @unique
+  appointment Appointment @relation(fields: [appointmentId], references: [id])
+
+  truckId String
+  truck Truck @relation(fields: [truckId], references: [id])
+
+  driverId String?
+  driver Driver? @relation(fields: [driverId], references: [id])
+
+  arrivalTime DateTime
+
+  createdById String?
+  createdBy User? @relation("UserCheckIns", fields: [createdById], references: [id])
+
+  dockOperation DockOperation?
+
+  createdAt DateTime @default(now())
+
+  @@index([truckId])
+  @@index([driverId])
+  @@index([arrivalTime])
+}
+
+model DockOperation {
+  id String @id @default(uuid())
+
+  dockId String
+  dock   Dock   @relation(fields: [dockId], references: [id])
+
+  checkInId String  @unique
+  checkIn   CheckIn @relation(fields: [checkInId], references: [id])
+
+  assignedById String?
+  assignedBy   User?   @relation("UserDockAssignments", fields: [assignedById], references: [id])
+
+  startedAt DateTime
+
+  finishedAt DateTime?
+
+  status DockOperationStatus
+
+  createdAt DateTime @default(now())
+
+  @@index([dockId])
+  @@index([status])
+  @@index([startedAt])
+}
+
+model User {
+  id String @id @default(uuid())
+
+  firstName String
+  lastName  String
+
+  email String @unique
+
+  passwordHash String
+
+  status UserStatus @default(ACTIVE)
+
+  roleId String
+  role   Role   @relation(fields: [roleId], references: [id])
+
+  supplierId String?
+  supplier   Supplier? @relation(fields: [supplierId], references: [id])
+
+  checkInsCreated CheckIn[] @relation("UserCheckIns")
+
+  dockAssignments DockOperation[] @relation("UserDockAssignments")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email])
+  @@index([roleId])
+  @@index([supplierId])
+}
+
+model Role {
+  id String @id @default(uuid())
+
+  code String @unique
+  name String
+
+  users User[]
+}
+
+model Permission {
+  id String @id @default(uuid())
+
+  code String @unique
+  name String
+}
+model Driver {
+  id String @id @default(uuid())
+
+  firstName String
+
+  lastName String?
+
+  phone String
+
+  licenseNumber String?
+
+  active Boolean @default(true)
+
+  checkIns CheckIn[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([phone])
+}

@@ -1,0 +1,122 @@
+@host = http://localhost:3000
+
+@dockGroupId = 40dfedf6-70a9-45ef-974b-9448e0f0119f
+@vehicleTypeId = 3e40287f-d37b-482f-a1f8-cf98f6ac9174
+
+###
+GET {{host}}/api/slots?dockGroupId={{dockGroupId}}&vehicleTypeId={{vehicleTypeId}}&operationType=UNLOAD&date=2026-08-01
+
+###
+POST http://localhost:3000/api/appointments
+Content-Type: application/json
+
+{
+  "supplierId": "1be236db-f9ba-485d-a237-770a1ff7bbe5",
+  "vehicleTypeId": "5ac753f7-fc8d-47b3-824e-e9e82badc82b",
+  "warehouseId": "7ba5d99b-c547-4f07-8563-064b6ca0b30a",
+  "dockGroupId": "dd3bac10-0e1c-43ec-bab7-555444d800a1",
+  "operationType": "UNLOAD",
+  "startTime": "2026-08-01T08:00:00.000Z"
+}
+###
+GET http://localhost:3000/api/slots?dockGroupId=40dfedf6-70a9-45ef-974b-9448e0f0119f&vehicleTypeId=3e40287f-d37b-482f-a1f8-cf98f6ac9174&operationType=UNLOAD&date=2026-08-01
+###
+POST http://localhost:3000/api/checkins
+Content-Type: application/json
+
+{
+  "appointmentId": "0fd4a62c-c8ff-4c4d-9162-372d0c856f1f",
+  "truckId": "e3859d0c-fdfd-4b78-9ff7-c39629074f2d",
+  "createdById": "dbf43321-5c9e-4de6-bacc-305fb3044a9b"
+}
+
+###
+POST http://localhost:3000/api/dock-operations/assign
+Content-Type: application/json
+
+{
+  "checkInId": "7113eb9a-9efa-4d53-b51a-9d147c6f6754",
+  "assignedById": "dbf43321-5c9e-4de6-bacc-305fb3044a9b"
+}
+
+###
+GET http://localhost:3000/api/dock-operations/queue/dd3bac10-0e1c-43ec-bab7-555444d800a1
+
+###
+POST http://localhost:3000/api/dock-operations/finish
+Content-Type: application/json
+
+{
+  "dockOperationId": "018c2fc6-4b6c-4301-9305-d9bb47dd78ea"
+}
+###
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "planner@yms.com",
+  "password": "planner123"
+}
+
+###
+GET http://localhost:3000/api/auth/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjRmMzc5YzBmLWI1ZmQtNGFkMi05ZTEyLTU3ZmM2OWU0NDZhOCIsImVtYWlsIjoicGxhbm5lckB5bXMuY29tIiwicm9sZSI6IlBMQU5ORVIiLCJzdXBwbGllcklkIjpudWxsLCJpYXQiOjE3ODQ5OTk4MjYsImV4cCI6MTc4NTAyODYyNn0.JJRJqOVRFFGu-kxtllPoFER6xrqGYjNWu0Xvn3ZcJ9Q
+###
+POST http://localhost:3000/api/appointments
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjRmMzc5YzBmLWI1ZmQtNGFkMi05ZTEyLTU3ZmM2OWU0NDZhOCIsImVtYWlsIjoicGxhbm5lckB5bXMuY29tIiwicm9sZSI6IlBMQU5ORVIiLCJzdXBwbGllcklkIjpudWxsLCJpYXQiOjE3ODQ5OTk4MjYsImV4cCI6MTc4NTAyODYyNn0.JJRJqOVRFFGu-kxtllPoFER6xrqGYjNWu0Xvn3ZcJ9Q
+
+###
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "gate@yms.com",
+  "password": "gate123"
+}
+
+###
+POST http://localhost:3000/api/appointments
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjI4MDYyOGY0LTBmMTQtNGI3Mi04OWU4LWM1OGI1MGMzMWRhZiIsImVtYWlsIjoiZ2F0ZUB5bXMuY29tIiwicm9sZSI6IkdBVEVfT1BFUkFUT1IiLCJzdXBwbGllcklkIjpudWxsLCJpYXQiOjE3ODUwMDA4MzEsImV4cCI6MTc4NTAyOTYzMX0.xUz7SndXjqW0zUWm40hnCME_EiHQr92hVY4eyTQYGIk
+Content-Type: application/json
+
+{}
+###
+GET http://localhost:3000/api/vehicle-types
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjRmMzc5YzBmLWI1ZmQtNGFkMi05ZTEyLTU3ZmM2OWU0NDZhOCIsImVtYWlsIjoicGxhbm5lckB5bXMuY29tIiwicm9sZSI6IlBMQU5ORVIiLCJzdXBwbGllcklkIjpudWxsLCJpYXQiOjE3ODUwMzQyMjYsImV4cCI6MTc4NTA2MzAyNn0.uXnsaJKMeSe6tCUV-5hBCSjtQJilZqDozaPkz6wZjIs
+Content-Type: application/json
+
+{
+  "email": "planner@yms.com",
+  "password": "planner123"
+}
+###
+GET http://localhost:3000/api/slots/availability?dockGroupId=ALGUN_ID&date=2026-08-01
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjRmMzc5YzBmLWI1ZmQtNGFkMi05ZTEyLTU3ZmM2OWU0NDZhOCIsImVtYWlsIjoicGxhbm5lckB5bXMuY29tIiwicm9sZSI6IlBMQU5ORVIiLCJzdXBwbGllcklkIjpudWxsLCJpYXQiOjE3ODUwMzQyMjYsImV4cCI6MTc4NTA2MzAyNn0.uXnsaJKMeSe6tCUV-5hBCSjtQJilZqDozaPkz6wZjIs
+
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjI4MDYyOGY0LTBmMTQtNGI3Mi04OWU4LWM1OGI1MGMzMWRhZiIsImVtYWlsIjoiZ2F0ZUB5bXMuY29tIiwicm9sZSI6IkdBVEVfT1BFUkFUT1IiLCJzdXBwbGllcklkIjpudWxsLCJpYXQiOjE3ODUxMTQ0ODcsImV4cCI6MTc4NTE0MzI4N30.GGelCJHYJgR2mvuYT251Qc3TKLUfoJU2FfUOGYIOBic
+###
+GET http://localhost:3000/api/dock-groups
+Authorization: Bearer {{token}}
+
+###
+GET http://localhost:3000/api/vehicle-types
+Authorization: Bearer {{token}}
+###
+GET http://localhost:3000/api/slots/availability?dockGroupId=ac20f7ff-0094-414a-b009-7f67b5a970ae&vehicleTypeId=a64f4bad-1cc4-4530-bdf3-e4c7de963ac1&operationType=UNLOAD&date=2026-08-01
+Authorization: Bearer {{token}}
+
+###
+GET http://localhost:3000/api/dock-operations/active
+Authorization: Bearer <token>
+
+###
+GET http://localhost:3000/api/dock-operations/queue/ac20f7ff-0094-414a-b009-7f67b5a970ae
+
+###
+POST http://localhost:3000/api/dock-operations/finish
+Content-Type: application/json
+Authorization: Bearer <token>
+
+{
+  "dockOperationId": "e4905bd1-65cd-4a8d-ac6c-599a0a9f46f6"
+}
