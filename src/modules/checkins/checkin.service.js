@@ -3,7 +3,8 @@ const prisma = require("../../lib/prisma");
 const createCheckIn = async ({
   appointmentId,
   truckId,
-  createdById
+  createdById,
+  driverId
 }) => {
   return prisma.$transaction(async (tx) => {
 
@@ -30,6 +31,7 @@ const createCheckIn = async ({
           appointmentId,
           truckId,
           createdById,
+          driverId,
           arrivalTime: new Date()
         }
       });

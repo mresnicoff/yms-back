@@ -37,7 +37,8 @@ const assignDock = async ({
         id: checkInId
       },
       include: {
-        appointment: true
+        appointment: true,
+        driver: true
       }
     });
 
@@ -104,11 +105,15 @@ const assignDock = async ({
       }
     });
 
-    return {
-      assigned: true,
-      dockCode: dock.code,
-      dockOperation
-    };
+return {
+  assigned: true,
+  dockCode: dock.code,
+  driverName: checkIn.driver
+    ? `${checkIn.driver.firstName} ${checkIn.driver.lastName ?? ""}`.trim()
+    : null,
+  driverPhone: checkIn.driver?.phone,
+  dockOperation
+};
   });
 };
 const getQueue = async (dockGroupId) => {
