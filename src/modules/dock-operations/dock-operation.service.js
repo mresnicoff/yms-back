@@ -1,4 +1,5 @@
 const prisma = require("../../lib/prisma");
+const notificationService =require("../../services/notification.service");
 
 const getActiveOperations =
   async () => {
@@ -104,6 +105,33 @@ const assignDock = async ({
         status: "IN_OPERATION"
       }
     });
+
+if (
+  checkIn.driver &&
+  checkIn.driver.phone
+) {
+
+  try {
+
+    await notificationService
+      .sendDockAssignment({
+        phone:
+          checkIn.driver.phone,
+          driverName:`${checkIn.driver.firstName} ${checkIn.driver.lastName ?? ""}`.trim(),
+          dockCode:dock.code
+      });
+
+  } catch (error) {
+
+    console.error(
+      "Error enviando WhatsApp",
+      error.response?.data ||
+      error.message
+    );
+
+  }
+
+}
 
 return {
   assigned: true,

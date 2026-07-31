@@ -120,3 +120,119 @@ Authorization: Bearer <token>
 {
   "dockOperationId": "e4905bd1-65cd-4a8d-ac6c-599a0a9f46f6"
 }
+
+### WhatsApp Hello World
+
+POST https://graph.facebook.com/v25.0/1294157167107681/messages
+Authorization: Bearer EAATuWOgrj84BSHXTFjO8DhWedzE9wX043WwgBv79jvKEKnrlN4VamtRS6n4xQEfBP6lCGhgCiGSgQq1ziQRK9VmooQQc0J0cBRJgM0Sji7XyJC56KgkZCzcZAwCmCniU4jBO48ZCZCEmjBZARsrDeO7S4VekBO4hdwxfn73rLZC3T6KK8rKQsXGV8POBTJRkTk415C3fbrhCVNAzJkZCXhagti7n3wlGZCTccUmT50ttdbSxaPsNQnDeNcoCgqEFEVpdbngdTszGfdfDBMziuQZDZD
+Content-Type: application/json
+
+{
+  "messaging_product": "whatsapp",
+  "to": "541123643945",
+  "type": "template",
+  "template": {
+    "name": "hello_world",
+    "language": {
+      "code": "en_US"
+    }
+  }
+}
+###
+GET https://graph.facebook.com/v25.0/2022553168629092/message_templates
+Authorization: Bearer EAATuWOgrj84BSHXTFjO8DhWedzE9wX043WwgBv79jvKEKnrlN4VamtRS6n4xQEfBP6lCGhgCiGSgQq1ziQRK9VmooQQc0J0cBRJgM0Sji7XyJC56KgkZCzcZAwCmCniU4jBO48ZCZCEmjBZARsrDeO7S4VekBO4hdwxfn73rLZC3T6KK8rKQsXGV8POBTJRkTk415C3fbrhCVNAzJkZCXhagti7n3wlGZCTccUmT50ttdbSxaPsNQnDeNcoCgqEFEVpdbngdTszGfdfDBMziuQZDZD
+Content-Type: application/json
+
+
+###
+POST https://graph.facebook.com/v25.0/2022553168629092/message_templates
+Authorization: Bearer EAATuWOgrj84BSHXTFjO8DhWedzE9wX043WwgBv79jvKEKnrlN4VamtRS6n4xQEfBP6lCGhgCiGSgQq1ziQRK9VmooQQc0J0cBRJgM0Sji7XyJC56KgkZCzcZAwCmCniU4jBO48ZCZCEmjBZARsrDeO7S4VekBO4hdwxfn73rLZC3T6KK8rKQsXGV8POBTJRkTk415C3fbrhCVNAzJkZCXhagti7n3wlGZCTccUmT50ttdbSxaPsNQnDeNcoCgqEFEVpdbngdTszGfdfDBMziuQZDZD
+Content-Type: application/json
+
+{
+  "name": "dock_assignment",
+  "language": "es",
+  "category": "UTILITY",
+  "components": [
+    {
+      "type": "BODY",
+      "text": "Hola {{1}}. Su vehículo fue asignado al dock {{2}}. Por favor diríjase al muelle indicado."
+    }
+  ]
+}
+###
+POST https://graph.facebook.com/v25.0/2022553168629092/message_templates
+Authorization: Bearer EAATuWOgrj84BSLNCPV0NijcV5dayqhI2UKnzYNAp1LBg26uabbFfoCywkIAsWpWrrQJLXGDZBWVlw50dH1yU7ZCXSEiLZAkj3m5U8QeywdYSTHJE8rSdjYASkoqBZB3ERYxy8C1tzN2GXjh75yCAyZC4MK4FTZA6FaZALmmT8VaQNHOGHpVCgIxdoTcrZAOm4QyWEmbWxYlwwy2yVUtREWBQytATJILbF6Ws2IARR7sTLarprvCz55O4nz2uM1RuBDsdfIq3DMD53BVASCiPqQZDZD
+Content-Type: application/json
+
+{
+  "name": "dock_test",
+  "language": "es_AR",
+  "category": "UTILITY",
+  "components": [
+    {
+      "type": "BODY",
+      "text": "Su turno fue asignado al dock {{1}} para una operación programada."
+    }
+  ]
+}
+
+###
+GET https://graph.facebook.com/v25.0/926060320545406
+Authorization: Bearer EAATuWOgrj84BSLNCPV0NijcV5dayqhI2UKnzYNAp1LBg26uabbFfoCywkIAsWpWrrQJLXGDZBWVlw50dH1yU7ZCXSEiLZAkj3m5U8QeywdYSTHJE8rSdjYASkoqBZB3ERYxy8C1tzN2GXjh75yCAyZC4MK4FTZA6FaZALmmT8VaQNHOGHpVCgIxdoTcrZAOm4QyWEmbWxYlwwy2yVUtREWBQytATJILbF6Ws2IARR7sTLarprvCz55O4nz2uM1RuBDsdfIq3DMD53BVASCiPqQZDZD
+
+###
+GET https://graph.facebook.com/v25.0/2022553168629092/message_templates
+Authorization: Bearer EAATuWOgrj84BSLNCPV0NijcV5dayqhI2UKnzYNAp1LBg26uabbFfoCywkIAsWpWrrQJLXGDZBWVlw50dH1yU7ZCXSEiLZAkj3m5U8QeywdYSTHJE8rSdjYASkoqBZB3ERYxy8C1tzN2GXjh75yCAyZC4MK4FTZA6FaZALmmT8VaQNHOGHpVCgIxdoTcrZAOm4QyWEmbWxYlwwy2yVUtREWBQytATJILbF6Ws2IARR7sTLarprvCz55O4nz2uM1RuBDsdfIq3DMD53BVASCiPqQZDZD
+
+###
+POST https://graph.facebook.com/v25.0/2022553168629092/message_templates
+Authorization: Bearer EAATuWOgrj84BSLNCPV0NijcV5dayqhI2UKnzYNAp1LBg26uabbFfoCywkIAsWpWrrQJLXGDZBWVlw50dH1yU7ZCXSEiLZAkj3m5U8QeywdYSTHJE8rSdjYASkoqBZB3ERYxy8C1tzN2GXjh75yCAyZC4MK4FTZA6FaZALmmT8VaQNHOGHpVCgIxdoTcrZAOm4QyWEmbWxYlwwy2yVUtREWBQytATJILbF6Ws2IARR7sTLarprvCz55O4nz2uM1RuBDsdfIq3DMD53BVASCiPqQZDZD
+Content-Type: application/json
+
+{
+  "name": "dock_test_en",
+  "language": "en_US",
+  "category": "UTILITY",
+  "components": [
+    {
+      "type": "BODY",
+      "text": "Your vehicle has been assigned to dock {{1}} for a scheduled operation."
+    }
+  ]
+}
+
+###
+GET https://graph.facebook.com/v25.0/2022553168629092/message_templates?fields=id,name,status,category,language
+Authorization: Bearer EAATuWOgrj84BSLNCPV0NijcV5dayqhI2UKnzYNAp1LBg26uabbFfoCywkIAsWpWrrQJLXGDZBWVlw50dH1yU7ZCXSEiLZAkj3m5U8QeywdYSTHJE8rSdjYASkoqBZB3ERYxy8C1tzN2GXjh75yCAyZC4MK4FTZA6FaZALmmT8VaQNHOGHpVCgIxdoTcrZAOm4QyWEmbWxYlwwy2yVUtREWBQytATJILbF6Ws2IARR7sTLarprvCz55O4nz2uM1RuBDsdfIq3DMD53BVASCiPqQZDZD
+
+
+###
+POST https://graph.facebook.com/v25.0/2022553168629092/message_templates
+Authorization: Bearer EAATuWOgrj84BSAvV1IyVI3yO12QKmzn9fHMDd2MBKCeIj1xcTZBns14o5y9HZAB1VBxQg4u0BFw6MxmJ6YmZAS8w60dSnHXbRTEpDITzJoZBEV95toy731GzdovpJHZCsjzQKHU6mfwTAznIeNS1yiS4gwdRODVikk6rmJzXSMUcoyEDKhkTmwdeJll00IOMCBUnZCr1NbTm7gQUZB34HbMbq0Vm1fyrISdmES70m1ghH4QRs9uO8Md3A2gyuBk8tM5I2khhFbrZBAuWuosrCgZDZD
+Content-Type: application/json
+
+{
+  "name": "asignacion_dock",
+  "language": "es",
+  "category": "UTILITY",
+  "parameter_format": "POSITIONAL",
+  "components": [
+    {
+      "type": "BODY",
+      "text": "Hola {{1}}, te informamos que debe dirigirse al dock {{2}}. Gracias.",
+      "example": {
+        "body_text": [
+          [
+            "Juan Pérez",
+            "Dock 7"
+          ]
+        ]
+      }
+    }
+  ]
+}
+
+###
+GET https://graph.facebook.com/v25.0/1355735360074815
+Authorization: Bearer EAATuWOgrj84BSBBMAucAGWcyAUSJ3nU0iVQLBjO54aF0b2nBHRnoXGBQBSeE151wrqGqnLVJSQyZAMyCS2IGZAEYv9oOzVYRZCx1vDZBZCg6OA2Jjb8jAxuieJ060WUdALeiKM9tHl2ScRvTFrkUmQY5Np1QZADPdIQSGDNZAqlColOZBLE3AN2MF8cD8AnlibLURWrN5ZCQR1z0bjFenUa443nZAFbvk8Ss6Y6xVvohUukadVQGZADdacAHVVg6PZAIpMySi5kdqTZA8QeVbzwBfiXoFpGZCY5S4rkcRh
