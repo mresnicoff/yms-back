@@ -22,5 +22,13 @@ router.post(
   "/finish",
   controller.finish
 );
+router.get(
+  "/docks/:dockGroupId",
+  controller.getDocksByGroup
+);
+router.post(
+  "/manual-assign",
+  controller.manualAssign
+);
 
 module.exports = router;

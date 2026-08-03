@@ -7,6 +7,7 @@ const appointmentRoutes =require("./modules/appointments/appointment.routes");
 const checkInRoutes =require("./modules/checkins/checkin.routes");
 const dockOperationRoutes = require("./modules/dock-operations/dock-operation.routes");
 const app = express();
+const dispatchRoutes =require("./modules/dispatches/dispatch.routes");
 const cors = require("cors");
 const driverRoutes =require("./modules/drivers/driver.routes");
 const supplierRoutes =require("./modules/suppliers/supplier.routes");
@@ -26,7 +27,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/suppliers",supplierRoutes);
 app.use( "/api/vehicle-types", vehicleTypeRoutes);
 app.use("/api/drivers",driverRoutes);
-
+app.use("/api/dispatches",dispatchRoutes);
 
 app.use("/api/dock-groups", dockGroupRoutes);
 

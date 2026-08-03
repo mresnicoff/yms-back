@@ -12,6 +12,7 @@ async function getAll(req, res) {
 
   } catch (error) {
 
+
     res.status(400).json({
       message: error.message
     });
@@ -32,6 +33,7 @@ async function create(req, res) {
     res.status(201).json(truck);
 
   } catch (error) {
+        console.error(error);
 
     res.status(400).json({
       message: error.message

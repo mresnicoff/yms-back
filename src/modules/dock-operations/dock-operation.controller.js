@@ -55,7 +55,6 @@ const getQueue = async (req, res) => {
 
   } catch (error) {
 
-    console.error(error);
 
     res.status(400).json({
       message: error.message
@@ -82,10 +81,58 @@ const finish = async (req, res) => {
     });
 
   }
+  
 };
+
+const getDocksByGroup =
+  async (req, res) => {
+
+    try {
+
+      const data =
+        await dockOperationService
+          .getDocksByGroup(
+            req.params.dockGroupId
+          );
+
+      res.status(200).json(data);
+
+    } catch (error) {
+
+      res.status(400).json({
+        message: error.message
+      });
+
+    }
+
+  };
+  const manualAssign =
+  async (req, res) => {
+
+    try {
+
+      const result =
+        await dockOperationService
+          .manualAssignDock(
+            req.body
+          );
+
+      res.status(200).json(result);
+
+    } catch (error) {
+
+      res.status(400).json({
+        message: error.message
+      });
+
+    }
+
+  };
 module.exports = {
   assign,
   getQueue,
   finish,
-  getActive
+  getActive,
+  getDocksByGroup,
+  manualAssign
 };

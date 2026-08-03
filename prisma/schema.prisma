@@ -18,6 +18,11 @@ enum OperationType {
   UNLOAD
 }
 
+enum AssignmentMode {
+AUTO
+MANUAL
+}
+
 enum DockStatus {
   FREE
   OCCUPIED
@@ -68,7 +73,7 @@ model DockGroup {
 
   warehouseId String
   warehouse   Warehouse @relation(fields: [warehouseId], references: [id])
-
+  assignmentMode AssignmentMode @default(AUTO)
   code String @unique
   name String
 
@@ -234,19 +239,21 @@ model DockOperation {
   id String @id @default(uuid())
 
   dockId String
-  dock   Dock   @relation(fields: [dockId], references: [id])
+  dock Dock @relation(fields: [dockId], references: [id])
 
-  checkInId String  @unique
-  checkIn   CheckIn @relation(fields: [checkInId], references: [id])
+  checkInId String @unique
+  checkIn CheckIn @relation(fields: [checkInId], references: [id])
 
   assignedById String?
-  assignedBy   User?   @relation("UserDockAssignments", fields: [assignedById], references: [id])
+  assignedBy User? @relation("UserDockAssignments", fields: [assignedById], references: [id])
 
   startedAt DateTime
 
   finishedAt DateTime?
 
   status DockOperationStatus
+
+  dispatch Dispatch?
 
   createdAt DateTime @default(now())
 
@@ -299,6 +306,21 @@ model Permission {
 
   code String @unique
   name String
+}
+model Dispatch {
+  id String @id @default(uuid())
+
+  dockOperationId String @unique
+
+  dockOperation DockOperation @relation(fields: [dockOperationId], references: [id])
+
+  routeSheetNumber String
+
+  sealNumbers String[]
+
+  checkedOutAt DateTime
+
+  createdAt DateTime @default(now())
 }
 model Driver {
   id String @id @default(uuid())
