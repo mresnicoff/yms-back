@@ -17,6 +17,10 @@ enum OperationType {
   LOAD
   UNLOAD
 }
+enum DocumentOwnerType {
+  DRIVER
+  TRUCK
+}
 
 enum AssignmentMode {
 AUTO
@@ -50,7 +54,49 @@ enum UserStatus {
   INACTIVE
   BLOCKED
 }
+model Document {
+  id String @id @default(uuid())
 
+  documentTypeId String
+  documentType DocumentType @relation(fields: [documentTypeId], references: [id])
+
+  ownerType DocumentOwnerType
+
+  driverId String?
+  driver Driver? @relation(fields: [driverId], references: [id])
+
+  truckId String?
+  truck Truck? @relation(fields: [truckId], references: [id])
+
+  expirationDate DateTime?
+
+  fileUrl String
+
+  active Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([driverId])
+  @@index([truckId])
+  @@index([expirationDate])
+}
+
+model RequiredDocument {
+  id String @id @default(uuid())
+
+  documentTypeId String
+  documentType DocumentType @relation(fields: [documentTypeId], references: [id])
+
+  operationType OperationType?
+
+  ownerType DocumentOwnerType
+
+  active Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
 model Warehouse {
   id String @id @default(uuid())
 
@@ -171,9 +217,28 @@ model Truck {
   vehicleType   VehicleType @relation(fields: [vehicleTypeId], references: [id])
 
   checkIns CheckIn[]
+  documents Document[]
 
   createdAt DateTime @default(now())
 }
+model DocumentType {
+  id String @id @default(uuid())
+
+  code String @unique
+
+  name String
+
+  description String?
+
+  active Boolean @default(true)
+
+  documents Document[]
+  requiredDocuments RequiredDocument[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 
 model Appointment {
   id String @id @default(uuid())
@@ -336,6 +401,7 @@ model Driver {
   active Boolean @default(true)
 
   checkIns CheckIn[]
+  documents Document[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

@@ -239,3 +239,222 @@ Authorization: Bearer EAATuWOgrj84BSBBMAucAGWcyAUSJ3nU0iVQLBjO54aF0b2nBHRnoXGBQB
 ###
 GET http://localhost:3000/api/dock-groups
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjI2NmViMTBkLWUxMGQtNGY2NS04N2Y0LTAxYzg4ZjlmYjM2YyIsImVtYWlsIjoiZ2F0ZUB5bXMuY29tIiwicm9sZSI6IkdBVEVfT1BFUkFUT1IiLCJzdXBwbGllcklkIjpudWxsLCJpYXQiOjE3ODU1NDQ0ODIsImV4cCI6MTc4NTU3MzI4Mn0.Tg8oSfGNa691f8GAbPAtpaYwR2IJVAKCVPCrkqoRTHo
+###
+POST http://localhost:3000/api/document-types
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjI2NmViMTBkLWUxMGQtNGY2NS04N2Y0LTAxYzg4ZjlmYjM2YyIsImVtYWlsIjoiZ2F0ZUB5bXMuY29tIiwicm9sZSI6IkdBVEVfT1BFUkFUT1IiLCJzdXBwbGllcklkIjpudWxsLCJpYXQiOjE3ODU3Njk5NDEsImV4cCI6MTc4NTc5ODc0MX0.u4Fq5KynirYFJJJEoSvlojVqldpMVsGBLphNmzzciZE
+Content-Type: application/json
+
+{
+  "code": "LICENSE",
+  "name": "Licencia de Conducir"
+}
+
+###
+POST http://localhost:3000/api/documents
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjI2NmViMTBkLWUxMGQtNGY2NS04N2Y0LTAxYzg4ZjlmYjM2YyIsImVtYWlsIjoiZ2F0ZUB5bXMuY29tIiwicm9sZSI6IkdBVEVfT1BFUkFUT1IiLCJzdXBwbGllcklkIjpudWxsLCJpYXQiOjE3ODU3Njk5NDEsImV4cCI6MTc4NTc5ODc0MX0.u4Fq5KynirYFJJJEoSvlojVqldpMVsGBLphNmzzciZE
+Content-Type: application/json
+
+{
+  "documentTypeId": "5f400aa6-a9b9-4249-b8c4-a15f054e9895",
+  "ownerType": "DRIVER",
+  "driverId": "6b5ccb4b-9da1-4b09-b1b6-7a2f6d33bd1c",
+  "expirationDate": "2027-12-31T00:00:00.000Z",
+  "fileUrl": "/uploads/licencia.pdf"
+}
+
+###
+GET http://localhost:3000/api/documents/driver/6b5ccb4b-9da1-4b09-b1b6-7a2f6d33bd1c
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjI2NmViMTBkLWUxMGQtNGY2NS04N2Y0LTAxYzg4ZjlmYjM2YyIsImVtYWlsIjoiZ2F0ZUB5bXMuY29tIiwicm9sZSI6IkdBVEVfT1BFUkFUT1IiLCJzdXBwbGllcklkIjpudWxsLCJpYXQiOjE3ODU3Njk5NDEsImV4cCI6MTc4NTc5ODc0MX0.u4Fq5KynirYFJJJEoSvlojVqldpMVsGBLphNmzzciZE
+###
+POST http://localhost:3000/api/required-documents
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjI2NmViMTBkLWUxMGQtNGY2NS04N2Y0LTAxYzg4ZjlmYjM2YyIsImVtYWlsIjoiZ2F0ZUB5bXMuY29tIiwicm9sZSI6IkdBVEVfT1BFUkFUT1IiLCJzdXBwbGllcklkIjpudWxsLCJpYXQiOjE3ODU3Njk5NDEsImV4cCI6MTc4NTc5ODc0MX0.u4Fq5KynirYFJJJEoSvlojVqldpMVsGBLphNmzzciZE
+Content-Type: application/json
+
+{
+  "documentTypeId": "5f400aa6-a9b9-4249-b8c4-a15f054e9895",
+  "operationType": "LOAD",
+  "ownerType": "DRIVER"
+}
+###
+POST http://localhost:3000/api/document-validation/check-in
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjI2NmViMTBkLWUxMGQtNGY2NS04N2Y0LTAxYzg4ZjlmYjM2YyIsImVtYWlsIjoiZ2F0ZUB5bXMuY29tIiwicm9sZSI6IkdBVEVfT1BFUkFUT1IiLCJzdXBwbGllcklkIjpudWxsLCJpYXQiOjE3ODU3NzI1MjAsImV4cCI6MTc4NTgwMTMyMH0.M4CmoDBQQBC-id9mIllTfAC8GM4VbEPvUAgDH8x0RXE
+Content-Type: application/json
+
+{
+  "driverId": "6b5ccb4b-9da1-4b09-b1b6-7a2f6d33bd1c",
+  "truckId": "ID_CAMION",
+  "operationType": "LOAD"
+}
+
+###
+POST http://localhost:3000/api/document-types
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjI2NmViMTBkLWUxMGQtNGY2NS04N2Y0LTAxYzg4ZjlmYjM2YyIsImVtYWlsIjoiZ2F0ZUB5bXMuY29tIiwicm9sZSI6IkdBVEVfT1BFUkFUT1IiLCJzdXBwbGllcklkIjpudWxsLCJpYXQiOjE3ODU3NzI1MjAsImV4cCI6MTc4NTgwMTMyMH0.M4CmoDBQQBC-id9mIllTfAC8GM4VbEPvUAgDH8x0RXE
+Content-Type: application/json
+
+{
+  "code": "Pepe",
+  "name": "Pepe"
+}
+###
+POST http://localhost:3000/api/required-documents
+Authorization: Bearer 
+{
+  "documentTypeId": "Authorization: Bearer 6acfd19d-2420-488d-9f64-3ec09d966057",
+  "operationType": "LOAD",
+  "ownerType": "DRIVER"
+}
+
+
+###
+POST http://localhost:3000/api/required-documents
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjI2NmViMTBkLWUxMGQtNGY2NS04N2Y0LTAxYzg4ZjlmYjM2YyIsImVtYWlsIjoiZ2F0ZUB5bXMuY29tIiwicm9sZSI6IkdBVEVfT1BFUkFUT1IiLCJzdXBwbGllcklkIjpudWxsLCJpYXQiOjE3ODU3Nzc4MjEsImV4cCI6MTc4NTgwNjYyMX0.nS5HKolLQnnVFNfwr3EKIiaDzZOdWQIVavYAGHwBYOo
+Content-Type: application/json
+
+{
+  "documentTypeId": "6acfd19d-2420-488d-9f64-3ec09d966057",
+  "operationType": "LOAD",
+  "ownerType": "DRIVER"
+}
+###
+POST https://graph.facebook.com/v25.0/2022553168629092/message_templates
+Authorization: Bearer EAATuWOgrj84BSfdsrcUkIcwvGGV7Vj4aFtlj8Ivwh4mGSw4qU4vPzYX0Q1BDpqmsXNBorkhPtMDsJyROMW28sxlSTUipTu8UO7WArXGZBZCFA5haI14LYrYz5710MVjgzktJhhu3WG4vbUed5czMlq0y5q3jFvwxX1WhtcoYIl5A2fHALBGO4U6VejFRgX8KnD5gURRYXdbfkqZBjIb7lPnKZCCZAOUR5n8eTFzuJ9c5E7aWZB3eLbioZBg9dO1xCUJHFdo4nlEo6EIAznE5VAY85zg7r8Pr1vH
+Content-Type: application/json
+
+{
+  "name": "confirmacion_senia",
+  "language": "es",
+  "category": "UTILITY",
+  "components": [
+    {
+      "type": "BODY",
+      "text": "Hola {{1}}, te confirmamos que hemos recibido correctamente tu seña de ${{2}} para la reserva de {{3}}. La misma está confirmada. ¡Muchas gracias!",
+      "example": {
+        "body_text": [
+          [
+            "Juan Pérez",
+            "5000",
+            "Barberia San Martin"
+          ]
+        ]
+      }
+    }
+  ]
+}
+###
+POST https://graph.facebook.com/v25.0/2022553168629092/message_templates
+Authorization: Bearer EAATuWOgrj84BSfdsrcUkIcwvGGV7Vj4aFtlj8Ivwh4mGSw4qU4vPzYX0Q1BDpqmsXNBorkhPtMDsJyROMW28sxlSTUipTu8UO7WArXGZBZCFA5haI14LYrYz5710MVjgzktJhhu3WG4vbUed5czMlq0y5q3jFvwxX1WhtcoYIl5A2fHALBGO4U6VejFRgX8KnD5gURRYXdbfkqZBjIb7lPnKZCCZAOUR5n8eTFzuJ9c5E7aWZB3eLbioZBg9dO1xCUJHFdo4nlEo6EIAznE5VAY85zg7r8Pr1vH
+Content-Type: application/json
+
+{
+  "name": "resetear_password_btn",
+  "language": "es",
+  "category": "UTILITY",
+  "components": [
+    {
+      "type": "BODY",
+      "text": "Hola {{1}}, recibimos una solicitud para restablecer tu contraseña. Si no solicitaste esto, podés ignorar este mensaje.",
+      "example": {
+        "body_text": [
+          ["Juan Pérez"]
+        ]
+      }
+    },
+    {
+      "type": "BUTTONS",
+      "buttons": [
+        {
+          "type": "URL",
+          "text": "Restablecer contraseña",
+          "url": "https://tudominio-real.com/reset?token={{1}}",
+          "example": [
+            "https://tudominio-real.com/reset?token=xyz123"
+          ]
+        }
+      ]
+    }
+  ]
+}
+###
+POST https://graph.facebook.com/v25.0/2022553168629092/message_templates
+Authorization: Bearer EAATuWOgrj84BSfdsrcUkIcwvGGV7Vj4aFtlj8Ivwh4mGSw4qU4vPzYX0Q1BDpqmsXNBorkhPtMDsJyROMW28sxlSTUipTu8UO7WArXGZBZCFA5haI14LYrYz5710MVjgzktJhhu3WG4vbUed5czMlq0y5q3jFvwxX1WhtcoYIl5A2fHALBGO4U6VejFRgX8KnD5gURRYXdbfkqZBjIb7lPnKZCCZAOUR5n8eTFzuJ9c5E7aWZB3eLbioZBg9dO1xCUJHFdo4nlEo6EIAznE5VAY85zg7r8Pr1vH
+Content-Type: application/json
+
+{
+  "name": "suscripcion_exitosa",
+  "language": "es",
+  "category": "UTILITY",
+  "components": [
+    {
+      "type": "BODY",
+      "text": "¡Hola {{1}}! Te confirmamos que tu suscripción al plan {{2}} se ha registrado con éxito. Tu prueba gratis estará activa hasta el {{3}}. ¡Bienvenido!",
+      "example": {
+        "body_text": [
+          [
+            "Juan Pérez",
+            "Premium Mensual",
+            "31/12/2026"
+          ]
+        ]
+      }
+    }
+  ]
+}
+
+###
+Confirmación de seña
+{ "id": "1355388656804160", "status": "PENDING", "category": "UTILITY" }
+
+Cambio de contraseña
+{ "id": "928537716969867", "status": "REJECTED", "category": "UTILITY" }
+Suscripción
+{ "id": "1365835115661300", "status": "PENDING", "category": "UTILITY" }
+
+###
+
+POST https://graph.facebook.com/v25.0/2022553168629092/message_templates
+Authorization: Bearer EAATuWOgrj84BSfdsrcUkIcwvGGV7Vj4aFtlj8Ivwh4mGSw4qU4vPzYX0Q1BDpqmsXNBorkhPtMDsJyROMW28sxlSTUipTu8UO7WArXGZBZCFA5haI14LYrYz5710MVjgzktJhhu3WG4vbUed5czMlq0y5q3jFvwxX1WhtcoYIl5A2fHALBGO4U6VejFRgX8KnD5gURRYXdbfkqZBjIb7lPnKZCCZAOUR5n8eTFzuJ9c5E7aWZB3eLbioZBg9dO1xCUJHFdo4nlEo6EIAznE5VAY85zg7r8Pr1vH
+Content-Type: application/json
+
+{
+  "name": "resetear_password",
+  "language": "es",
+  "category": "AUTHENTICATION",
+  "components": [
+    {
+      "type": "BODY",
+      "text": "Hola {{1}}, recibimos una solicitud para restablecer tu contraseña. Haz clic en el siguiente enlace para continuar: {{2}}. Si no solicitaste esto, puedes ignorar este mensaje.",
+      "example": {
+        "body_text": [
+          [
+            "Juan Pérez",
+            "https://www.patiodemaniobras.com/reset?token=xyz123"
+          ]
+        ]
+      }
+    }
+  ]
+}
+###
+POST https://graph.facebook.com/v25.0/2022553168629092/message_templates
+Authorization: Bearer EAATuWOgrj84BSfdsrcUkIcwvGGV7Vj4aFtlj8Ivwh4mGSw4qU4vPzYX0Q1BDpqmsXNBorkhPtMDsJyROMW28sxlSTUipTu8UO7WArXGZBZCFA5haI14LYrYz5710MVjgzktJhhu3WG4vbUed5czMlq0y5q3jFvwxX1WhtcoYIl5A2fHALBGO4U6VejFRgX8KnD5gURRYXdbfkqZBjIb7lPnKZCCZAOUR5n8eTFzuJ9c5E7aWZB3eLbioZBg9dO1xCUJHFdo4nlEo6EIAznE5VAY85zg7r8Pr1vH
+Content-Type: application/json
+
+{
+  "name": "resetear_password_v3",
+  "language": "es",
+  "category": "AUTHENTICATION",
+  "components": [
+    {
+      "type": "BODY",
+      "text": "Hola {{1}}, recibimos una solicitud para restablecer tu contraseña. Haz clic en el siguiente enlace para continuar: {{2}}. Si no solicitaste esto, puedes ignorar este mensaje.",
+      "example": {
+        "body_text": [
+          [
+            "Juan Pérez",
+            "https://tuempresa.com/reset?token=xyz123"
+          ]
+        ]
+      }
+    }
+  ]
+}
