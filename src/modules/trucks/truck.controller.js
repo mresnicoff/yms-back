@@ -1,5 +1,6 @@
 const truckService =
   require("./truck.service");
+const { sendError } = require("../../lib/errors");
 
 async function getAll(req, res) {
 
@@ -12,10 +13,7 @@ async function getAll(req, res) {
 
   } catch (error) {
 
-
-    res.status(400).json({
-      message: error.message
-    });
+    sendError(res, error, "No se pudieron obtener los camiones.");
 
   }
 
@@ -33,11 +31,8 @@ async function create(req, res) {
     res.status(201).json(truck);
 
   } catch (error) {
-        console.error(error);
 
-    res.status(400).json({
-      message: error.message
-    });
+    sendError(res, error, "No se pudo crear el camión.");
 
   }
 

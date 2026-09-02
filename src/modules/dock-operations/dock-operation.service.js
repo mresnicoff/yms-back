@@ -1,6 +1,7 @@
 const prisma = require("../../lib/prisma");
 const notificationService =
   require("../../services/notification.service");
+const { AppError, requireFields } = require("../../lib/errors");
 
 const getActiveOperations =
   async () => {
@@ -43,10 +44,13 @@ const getActiveOperations =
 
   };
 
-const assignDock = async ({
-  checkInId,
-  assignedById
-}) => {
+const assignDock = async (data) => {
+
+  requireFields(data, {
+    checkInId: "Check-In"
+  });
+
+  const { checkInId, assignedById } = data;
 
   return prisma.$transaction(async (tx) => {
 
@@ -62,8 +66,8 @@ const assignDock = async ({
       });
 
     if (!checkIn) {
-      throw new Error(
-        "CheckIn not found"
+      throw new AppError(
+        "El Check-In indicado no existe."
       );
     }
 
@@ -74,8 +78,8 @@ const assignDock = async ({
       appointment.status !== "WAITING_DOCK" &&
       appointment.status !== "CHECKED_IN"
     ) {
-      throw new Error(
-        `Appointment status is ${appointment.status}`
+      throw new AppError(
+        `El turno ya no está en condiciones de asignarse a un dock (estado: ${appointment.status}).`
       );
     }
 
@@ -224,9 +228,13 @@ return queue.map(
 };
 
 const finishDockOperation =
-  async ({
-    dockOperationId
-  }) => {
+  async (data) => {
+
+    requireFields(data, {
+      dockOperationId: "Operación de dock"
+    });
+
+    const { dockOperationId } = data;
 
     return prisma.$transaction(
       async (tx) => {
@@ -253,8 +261,8 @@ const finishDockOperation =
             });
 
         if (!dockOperation) {
-          throw new Error(
-            "Dock operation not found"
+          throw new AppError(
+            "La operación de dock indicada no existe."
           );
         }
 
@@ -262,8 +270,8 @@ const finishDockOperation =
           dockOperation.status ===
           "FINISHED"
         ) {
-          throw new Error(
-            "Dock operation already finished"
+          throw new AppError(
+            "Esta operación de dock ya fue finalizada."
           );
         }
 
@@ -420,11 +428,14 @@ const finishDockOperation =
 
   };
 const manualAssignDock =
-  async ({
-    checkInId,
-    dockId,
-    assignedById
-  }) => {
+  async (data) => {
+
+    requireFields(data, {
+      checkInId: "Check-In",
+      dockId: "Dock"
+    });
+
+    const { checkInId, dockId, assignedById } = data;
 
     return prisma.$transaction(
       async (tx) => {
@@ -441,8 +452,8 @@ const manualAssignDock =
           });
 
         if (!checkIn) {
-          throw new Error(
-            "CheckIn not found"
+          throw new AppError(
+            "El Check-In indicado no existe."
           );
         }
 
@@ -454,16 +465,16 @@ const manualAssignDock =
           });
 
         if (!dock) {
-          throw new Error(
-            "Dock not found"
+          throw new AppError(
+            "El dock indicado no existe."
           );
         }
 
         if (
           dock.status !== "FREE"
         ) {
-          throw new Error(
-            "Dock is not available"
+          throw new AppError(
+            "El dock seleccionado no está disponible."
           );
         }
 

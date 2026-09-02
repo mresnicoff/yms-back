@@ -1,5 +1,6 @@
 const prisma =
   require("../../lib/prisma");
+const { requireFields } = require("../../lib/errors");
 
 async function getAll() {
 
@@ -14,12 +15,19 @@ async function getAll() {
 
 }
 
-async function create({
-  firstName,
-  lastName,
-  phone,
-  licenseNumber
-}) {
+async function create(data) {
+
+  requireFields(data, {
+    firstName: "Nombre",
+    phone: "Teléfono"
+  });
+
+  const {
+    firstName,
+    lastName,
+    phone,
+    licenseNumber
+  } = data;
 
   return prisma.driver.create({
     data: {

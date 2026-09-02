@@ -1,5 +1,6 @@
 const dispatchService =
   require("./dispatch.service");
+const { sendError } = require("../../lib/errors");
 
 const create =
   async (req, res) => {
@@ -18,10 +19,7 @@ const create =
 
     } catch (error) {
 
-      res.status(400).json({
-        message:
-          error.message
-      });
+      sendError(res, error, "No se pudo registrar el despacho.");
 
     }
 

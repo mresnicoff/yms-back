@@ -1,11 +1,21 @@
 const prisma = require("../../lib/prisma");
+const { AppError, requireFields } = require("../../lib/errors");
 
-const createCheckIn = async ({
-  appointmentId,
-  truckId,
-  createdById,
-  driverId
-}) => {
+const createCheckIn = async (data) => {
+
+  requireFields(data, {
+    appointmentId: "Turno",
+    truckId: "Camión",
+    driverId: "Chofer"
+  });
+
+  const {
+    appointmentId,
+    truckId,
+    createdById,
+    driverId
+  } = data;
+
   return prisma.$transaction(async (tx) => {
 
     const appointment =
@@ -16,13 +26,26 @@ const createCheckIn = async ({
       });
 
     if (!appointment) {
-      throw new Error("Appointment not found");
+      throw new AppError("El turno indicado no existe.");
     }
 
     if (appointment.status !== "SCHEDULED") {
-      throw new Error(
-        `Appointment status is ${appointment.status}`
+      throw new AppError(
+        `El turno ya no está disponible para check-in (estado: ${appointment.status}).`
       );
+    }
+
+    const [truck, driver] = await Promise.all([
+      tx.truck.findUnique({ where: { id: truckId } }),
+      tx.driver.findUnique({ where: { id: driverId } })
+    ]);
+
+    if (!truck) {
+      throw new AppError("El camión indicado no existe.");
+    }
+
+    if (!driver) {
+      throw new AppError("El chofer indicado no existe.");
     }
 
     const checkIn =

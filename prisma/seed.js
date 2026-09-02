@@ -1,6 +1,9 @@
 const { PrismaClient } = require("@prisma/client");
+const bcrypt = require("bcryptjs");
 
 const prisma = new PrismaClient();
+
+const hash = (plainPassword) => bcrypt.hashSync(plainPassword, 10);
 
 async function main() {
   console.log("🌱 Seeding...");
@@ -155,7 +158,7 @@ await prisma.user.create({
     firstName: "Juan",
     lastName: "Proveedor",
     email: "jperez@pg.com",
-    passwordHash: "pg123",
+    passwordHash: hash("pg123"),
     roleId: supplierRole.id,
     supplierId: pgSupplier.id
   }
@@ -166,7 +169,7 @@ await prisma.user.create({
     firstName: "System",
     lastName: "Administrator",
     email: "admin@yms.com",
-    passwordHash: "admin123",
+    passwordHash: hash("admin123"),
     roleId: adminRole.id
   }
 });
@@ -177,21 +180,21 @@ await prisma.user.createMany({
       firstName: "Juan",
       lastName: "Planner",
       email: "planner@yms.com",
-      passwordHash: "planner123",
+      passwordHash: hash("planner123"),
       roleId: plannerRole.id
     },
     {
       firstName: "Pedro",
       lastName: "Gate",
       email: "gate@yms.com",
-      passwordHash: "gate123",
+      passwordHash: hash("gate123"),
       roleId: gateRole.id
     },
     {
       firstName: "Luis",
       lastName: "Yard",
       email: "yard@yms.com",
-      passwordHash: "yard123",
+      passwordHash: hash("yard123"),
       roleId: yardRole.id
     }
   ]

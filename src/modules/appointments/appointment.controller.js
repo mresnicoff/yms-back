@@ -1,5 +1,6 @@
 const appointmentService =
   require("./appointment.service");
+const { sendError } = require("../../lib/errors");
 
 async function create(req, res) {
 
@@ -23,11 +24,7 @@ async function create(req, res) {
 
   } catch (error) {
 
-    console.error(error);
-
-    res.status(400).json({
-      message: error.message
-    });
+    sendError(res, error, "No se pudo crear el turno. Intentá nuevamente.");
 
   }
 
@@ -47,11 +44,7 @@ async function getAll(req, res) {
 
   } catch (error) {
 
-    console.error(error);
-
-    res.status(400).json({
-      message: error.message
-    });
+    sendError(res, error, "No se pudieron obtener los turnos.");
 
   }
 

@@ -11,7 +11,7 @@ const authMiddleware = (
 
   if (!authHeader) {
     return res.status(401).json({
-      message: "Token required"
+      message: "Se requiere iniciar sesión."
     });
   }
 
@@ -30,7 +30,7 @@ const authMiddleware = (
   } catch {
 
     return res.status(401).json({
-      message: "Invalid token"
+      message: "La sesión no es válida o expiró. Iniciá sesión nuevamente."
     });
   }
 };

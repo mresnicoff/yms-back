@@ -1,5 +1,6 @@
 const authService =
   require("./auth.service");
+const { sendError } = require("../../lib/errors");
 
 const login = async (req, res) => {
 
@@ -12,9 +13,7 @@ const login = async (req, res) => {
 
   } catch (error) {
 
-    res.status(401).json({
-      message: error.message
-    });
+    sendError(res, error, "No se pudo iniciar sesión. Intentá nuevamente.");
 
   }
 };

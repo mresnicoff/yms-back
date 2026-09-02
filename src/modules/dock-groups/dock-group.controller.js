@@ -1,5 +1,6 @@
 const dockGroupService =
   require("./dock-group.service");
+const { sendError } = require("../../lib/errors");
 
 async function getAll(req, res) {
 
@@ -12,9 +13,7 @@ async function getAll(req, res) {
 
   } catch (error) {
 
-    res.status(400).json({
-      message: error.message
-    });
+    sendError(res, error, "No se pudieron obtener los dock groups.");
 
   }
 

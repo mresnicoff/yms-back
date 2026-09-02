@@ -1,5 +1,6 @@
 const slotService =
   require("./slot.service");
+const { sendError } = require("../../lib/errors");
 
 async function getAvailability(
   req,
@@ -17,9 +18,7 @@ async function getAvailability(
 
   } catch (error) {
 
-    res.status(400).json({
-      message: error.message
-    });
+    sendError(res, error, "No se pudo consultar la disponibilidad.");
 
   }
 

@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const path = require("path");
 
 // Rutas existentes
 const warehouseRoutes = require("./modules/warehouses/warehouse.routes");
@@ -18,24 +19,43 @@ const dockGroupRoutes = require("./modules/dock-groups/dock-group.routes");
 const truckRoutes = require("./modules/trucks/truck.routes");
 const documentRoutes = require("./modules/documents/document.routes");
 const documentTypeRoutes = require("./modules/document-types/document-type.routes");
-const path =require("path");
 // Nuevo módulo de WhatsApp
 const whatsappRoutes = require("./modules/whatsapp/whatsapp.routes");
 
 const app = express();
 
+// Orígenes permitidos para CORS: en desarrollo, el Vite dev server local;
+// en producción, la URL del frontend desplegado (configurable por env var,
+// admite una lista separada por comas para soportar varios dominios/previews).
+const allowedOrigins = [
+  "http://localhost:5173",
+  ...((process.env.FRONTEND_URL || "")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean))
+];
+
 app.use(cors({
-  origin: "http://localhost:5173"
+  origin(origin, callback) {
+    // Sin header Origin (ej: curl, Postman, requests server-to-server)
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error("Not allowed by CORS"));
+  }
 }));
 
 app.use(express.json());
+
+// NOTA: esto sirve archivos subidos desde el disco local, lo cual solo
+// funciona en un servidor tradicional (no en funciones serverless de
+// Vercel, donde el disco es efímero). Ver discusión pendiente sobre migrar
+// los uploads a un storage real (ej: Vercel Blob) antes de desplegar ahí.
 app.use(
   "/uploads",
-  express.static(
-    path.join(
-      __dirname,
-      "../uploads")))
-    
+  express.static(path.join(__dirname, "../uploads"))
+);
+
 // Registro de endpoints
 app.use("/api/document-validation", documentValidationRoutes);
 app.use("/api/warehouses", warehouseRoutes);
@@ -56,5 +76,33 @@ app.use("/api/slots", slotRoutes);
 
 // Endpoint de WhatsApp
 app.use("/api/whatsapp", whatsappRoutes);
+
+app.get("/api/health", (req, res) => {
+  res.status(200).json({ status: "ok" });
+});
+
+// Ruta no encontrada
+app.use((req, res) => {
+  res.status(404).json({ message: "Recurso no encontrado." });
+});
+
+// Manejador de errores global: red de seguridad para cualquier error que no
+// haya sido capturado explícitamente en un controller (body JSON malformado,
+// bugs inesperados, etc). Nunca expone detalles internos al cliente.
+app.use((err, req, res, next) => {
+  if (err && err.message === "Not allowed by CORS") {
+    return res.status(403).json({ message: "Origen no permitido." });
+  }
+
+  if (err && err.isAppError) {
+    return res.status(err.statusCode || 400).json({ message: err.message });
+  }
+
+  console.error(err);
+
+  res.status(500).json({
+    message: "Ocurrió un error inesperado en el servidor."
+  });
+});
 
 module.exports = app;

@@ -1,7 +1,8 @@
 const dockOperationService =
   require("./dock-operation.service");
+const { sendError } = require("../../lib/errors");
 
-  const getActive =
+const getActive =
   async (req, res) => {
 
     try {
@@ -14,9 +15,7 @@ const dockOperationService =
 
     } catch (error) {
 
-      res.status(400).json({
-        message: error.message
-      });
+      sendError(res, error, "No se pudieron obtener las operaciones activas.");
 
     }
 
@@ -26,19 +25,16 @@ const assign = async (req, res) => {
   try {
 
     const result =
-      await dockOperationService.assignDock(
-        req.body
-      );
+      await dockOperationService.assignDock({
+        ...req.body,
+        assignedById: req.user?.id
+      });
 
     res.status(200).json(result);
 
   } catch (error) {
 
-    console.error(error);
-
-    res.status(400).json({
-      message: error.message
-    });
+    sendError(res, error, "No se pudo asignar el dock.");
 
   }
 };
@@ -55,13 +51,10 @@ const getQueue = async (req, res) => {
 
   } catch (error) {
 
-
-    res.status(400).json({
-      message: error.message
-    });
+    sendError(res, error, "No se pudo obtener la cola.");
 
   }
-};  
+};
 const finish = async (req, res) => {
 
   try {
@@ -74,14 +67,10 @@ const finish = async (req, res) => {
 
   } catch (error) {
 
-    console.error(error);
-
-    res.status(400).json({
-      message: error.message
-    });
+    sendError(res, error, "No se pudo finalizar la operación.");
 
   }
-  
+
 };
 
 const getDocksByGroup =
@@ -99,31 +88,28 @@ const getDocksByGroup =
 
     } catch (error) {
 
-      res.status(400).json({
-        message: error.message
-      });
+      sendError(res, error, "No se pudieron obtener los docks.");
 
     }
 
   };
-  const manualAssign =
+const manualAssign =
   async (req, res) => {
 
     try {
 
       const result =
         await dockOperationService
-          .manualAssignDock(
-            req.body
-          );
+          .manualAssignDock({
+            ...req.body,
+            assignedById: req.user?.id
+          });
 
       res.status(200).json(result);
 
     } catch (error) {
 
-      res.status(400).json({
-        message: error.message
-      });
+      sendError(res, error, "No se pudo asignar el dock manualmente.");
 
     }
 
