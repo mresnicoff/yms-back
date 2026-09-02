@@ -38,7 +38,47 @@ async function create(req, res) {
 
 }
 
+async function update(req, res) {
+
+  try {
+
+    const truck =
+      await truckService.update(
+        req.params.id,
+        req.body
+      );
+
+    res.status(200).json(truck);
+
+  } catch (error) {
+
+    sendError(res, error, "No se pudo actualizar el camión.");
+
+  }
+
+}
+
+async function remove(req, res) {
+
+  try {
+
+    await truckService.remove(
+      req.params.id
+    );
+
+    res.status(204).send();
+
+  } catch (error) {
+
+    sendError(res, error, "No se pudo eliminar el camión.");
+
+  }
+
+}
+
 module.exports = {
   getAll,
-  create
+  create,
+  update,
+  remove
 };

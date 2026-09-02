@@ -38,7 +38,47 @@ async function create(req, res) {
 
 }
 
+async function update(req, res) {
+
+  try {
+
+    const driver =
+      await driverService.update(
+        req.params.id,
+        req.body
+      );
+
+    res.status(200).json(driver);
+
+  } catch (error) {
+
+    sendError(res, error, "No se pudo actualizar el chofer.");
+
+  }
+
+}
+
+async function remove(req, res) {
+
+  try {
+
+    await driverService.remove(
+      req.params.id
+    );
+
+    res.status(204).send();
+
+  } catch (error) {
+
+    sendError(res, error, "No se pudo eliminar el chofer.");
+
+  }
+
+}
+
 module.exports = {
   getAll,
-  create
+  create,
+  update,
+  remove
 };

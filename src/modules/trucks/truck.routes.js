@@ -21,4 +21,16 @@ router.post(
   controller.create
 );
 
+router.put(
+  "/:id",
+  authMiddleware,
+  controller.update
+);
+
+router.delete(
+  "/:id",
+  authMiddleware,
+  controller.remove
+);
+
 module.exports = router;
