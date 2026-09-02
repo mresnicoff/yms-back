@@ -1,6 +1,5 @@
 const express = require("express");
 const cors = require("cors");
-const path = require("path");
 
 // Rutas existentes
 const warehouseRoutes = require("./modules/warehouses/warehouse.routes");
@@ -44,15 +43,6 @@ app.use(cors({
 }));
 
 app.use(express.json());
-
-// NOTA: esto sirve archivos subidos desde el disco local, lo cual solo
-// funciona en un servidor tradicional (no en funciones serverless de
-// Vercel, donde el disco es efímero). Ver discusión pendiente sobre migrar
-// los uploads a un storage real (ej: Vercel Blob) antes de desplegar ahí.
-app.use(
-  "/uploads",
-  express.static(path.join(__dirname, "../uploads"))
-);
 
 // Registro de endpoints
 app.use("/api/document-validation", documentValidationRoutes);

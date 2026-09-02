@@ -7,12 +7,6 @@ coverage/
 logs/
 *.log
 
-# Uploaded files: local disk storage is not durable/shared across deploys
-# (and won't work at all on Vercel's serverless functions). Real uploads
-# belong in object storage (e.g. Vercel Blob), not in git.
-/uploads/*
-!/uploads/.gitkeep
-
 # Local database dumps — may contain real data, never commit these.
 # (Prisma migration files under prisma/migrations/**/*.sql are unaffected.)
 /backup*.sql
