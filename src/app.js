@@ -26,6 +26,10 @@ const app = express();
 // admite una lista separada por comas para soportar varios dominios/previews).
 const allowedOrigins = [
   "http://localhost:5173",
+  "http://www.ymspro.com.ar",
+  "https://www.ymspro.com.ar",
+  "http://ymspro.com.ar",
+  "https://ymspro.com.ar"
   ...((process.env.FRONTEND_URL || "")
     .split(",")
     .map((origin) => origin.trim())
