@@ -56,7 +56,7 @@ const corsOptions = {
 
 // Se aplican las opciones de CORS a todas las rutas y a las solicitudes OPTIONS (preflight)
 app.use(cors(corsOptions));
-app.options("*", cors(corsOptions));
+app.options("/*splat", cors(corsOptions));
 
 app.use(express.json());
 
