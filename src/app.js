@@ -29,7 +29,7 @@ const allowedOrigins = [
   "http://www.ymspro.com.ar",
   "https://www.ymspro.com.ar",
   "http://ymspro.com.ar",
-  "https://ymspro.com.ar"
+  "https://ymspro.com.ar",
   ...((process.env.FRONTEND_URL || "")
     .split(",")
     .map((origin) => origin.trim())
