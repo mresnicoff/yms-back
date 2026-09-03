@@ -24,27 +24,48 @@ const app = express();
 // Orígenes permitidos para CORS: en desarrollo, el Vite dev server local;
 // en producción, la URL del frontend desplegado (configurable por env var,
 // admite una lista separada por comas para soportar varios dominios/previews).
-const allowedOrigins = [
-  "http://localhost:5173",
-  "http://www.ymspro.com.ar",
-  "https://www.ymspro.com.ar",
-  "http://ymspro.com.ar",
-  "https://ymspro.com.ar",
-  ...((process.env.FRONTEND_URL || "")
-    .split(",")
-    .map((origin) => origin.trim())
-    .filter(Boolean))
-];
+// Asegúrate de limpiar/normalizar los orígenes permitidos
+const allowedOrigins = Array.from(
+  new Set([
+    "http://localhost:5173",
+    "http://www.ymspro.com.ar",
+    "https://www.ymspro.com.ar",
+    "http://ymspro.com.ar",
+    "https://ymspro.com.ar",
+    ...((process.env.FRONTEND_URL || "")
+      .split(",")
+      .map((origin) => origin.trim().replace(/\/$/, "")) // quita / al final si existe
+      .filter(Boolean))
+  ])
+);
 
-app.use(cors({
-  origin(origin, callback) {
-    // Sin header Origin (ej: curl, Postman, requests server-to-server)
-    if (!origin || allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
-    return callback(new Error("Not allowed by CORS"));
-  }
-}));
+app.use(
+  cors({
+    origin(origin, callback) {
+      // 1. Permitir requests sin header Origin (Postman, cURL, server-to-server)
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      // Normalizar origin quitando barra final
+      const cleanOrigin = origin.replace(/\/$/, "");
+
+      if (allowedOrigins.includes(cleanOrigin)) {
+        return callback(null, true);
+      }
+
+      // 2. IMPORTANTE: En lugar de lanzar new Error(), pasa false.
+      // De lo contrario, el browser no recibe los headers CORS adecuados y da Network Error.
+      return callback(null, false);
+    },
+    credentials: true, // Requerido si envías cookies o auth headers
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"]
+  })
+);
+
+// Responder explícitamente a las peticiones Preflight (OPTIONS)
+app.options("*", cors());
 
 app.use(express.json());
 
