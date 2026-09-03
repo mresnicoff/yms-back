@@ -35,35 +35,26 @@ const allowedOrigins = Array.from(
   ])
 );
 
-// 1. Interceptor manual para responder 200 OK a las peticiones OPTIONS
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  const cleanOrigin = origin ? origin.replace(/\/$/, "") : "";
-
-  if (allowedOrigins.includes(cleanOrigin)) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
-  }
-  
-  res.setHeader("Access-Control-Allow-Credentials", "true");
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, Accept");
-
-  if (req.method === "OPTIONS") {
-    return res.status(200).end(); // Forzar estado 200 OK
-  }
-  
-  next();
-});
-
-// 2. Configuración global del paquete CORS
+// Configuración unificada de CORS
 const corsOptions = {
-  origin: allowedOrigins,
+  origin: function (origin, callback) {
+    // Permite requests sin cabecera 'origin' (ej. Postman, llamadas servidor a servidor o healthchecks)
+    if (!origin) return callback(null, true);
+
+    const cleanOrigin = origin.replace(/\/$/, "");
+    if (allowedOrigins.includes(cleanOrigin)) {
+      return callback(null, true);
+    } else {
+      return callback(new Error("Not allowed by CORS"));
+    }
+  },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"],
   optionsSuccessStatus: 200
 };
 
+// Se aplican las opciones de CORS a todas las rutas y a las solicitudes OPTIONS (preflight)
 app.use(cors(corsOptions));
 app.options("*", cors(corsOptions));
 
@@ -96,12 +87,10 @@ app.use((req, res) => {
   res.status(404).json({ message: "Recurso no encontrado." });
 });
 
-// Manejador de errores global: red de seguridad para cualquier error que no
-// haya sido capturado explícitamente en un controller (body JSON malformado,
-// bugs inesperados, etc). Nunca expone detalles internos al cliente.
+// Manejador de errores global
 app.use((err, req, res, next) => {
   if (err && err.message === "Not allowed by CORS") {
-    return res.status(403).json({ message: "Origen no permitido." });
+    return res.status(403).json({ message: "Origen no permitido por CORS." });
   }
 
   if (err && err.isAppError) {
