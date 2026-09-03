@@ -21,10 +21,6 @@ const documentTypeRoutes = require("./modules/document-types/document-type.route
 
 const app = express();
 
-// Orígenes permitidos para CORS: en desarrollo, el Vite dev server local;
-// en producción, la URL del frontend desplegado (configurable por env var,
-// admite una lista separada por comas para soportar varios dominios/previews).
-// Asegúrate de limpiar/normalizar los orígenes permitidos
 const allowedOrigins = Array.from(
   new Set([
     "http://localhost:5173",
@@ -34,38 +30,42 @@ const allowedOrigins = Array.from(
     "https://ymspro.com.ar",
     ...((process.env.FRONTEND_URL || "")
       .split(",")
-      .map((origin) => origin.trim().replace(/\/$/, "")) // quita / al final si existe
+      .map((origin) => origin.trim().replace(/\/$/, ""))
       .filter(Boolean))
   ])
 );
 
-app.use(
-  cors({
-    origin(origin, callback) {
-      // 1. Permitir requests sin header Origin (Postman, cURL, server-to-server)
-      if (!origin) {
-        return callback(null, true);
-      }
+// 1. Interceptor manual para responder 200 OK a las peticiones OPTIONS
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  const cleanOrigin = origin ? origin.replace(/\/$/, "") : "";
 
-      // Normalizar origin quitando barra final
-      const cleanOrigin = origin.replace(/\/$/, "");
+  if (allowedOrigins.includes(cleanOrigin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  }
+  
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, Accept");
 
-      if (allowedOrigins.includes(cleanOrigin)) {
-        return callback(null, true);
-      }
+  if (req.method === "OPTIONS") {
+    return res.status(200).end(); // Forzar estado 200 OK
+  }
+  
+  next();
+});
 
-      // 2. IMPORTANTE: En lugar de lanzar new Error(), pasa false.
-      // De lo contrario, el browser no recibe los headers CORS adecuados y da Network Error.
-      return callback(null, false);
-    },
-    credentials: true, // Requerido si envías cookies o auth headers
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"]
-  })
-);
+// 2. Configuración global del paquete CORS
+const corsOptions = {
+  origin: allowedOrigins,
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"],
+  optionsSuccessStatus: 200
+};
 
-// Responder explícitamente a las peticiones Preflight (OPTIONS)
-app.options("*", cors());
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 
 app.use(express.json());
 
