@@ -151,7 +151,10 @@ model Dock {
 
   status DockStatus @default(FREE)
 
-  operationType OperationType
+  // Nullable: con un grupo de docks compartido para carga y descarga, un
+  // dock ya no está atado a un único tipo de operación. Se conserva el
+  // valor histórico en los docks que ya lo tenían asignado.
+  operationType OperationType?
 
   active Boolean @default(true)
 

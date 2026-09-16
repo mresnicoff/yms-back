@@ -7,7 +7,7 @@ async function createAppointment(data) {
     supplierId: "Proveedor",
     vehicleTypeId: "Tipo de vehículo",
     warehouseId: "Depósito",
-    dockGroupId: "Dock Group",
+    dockGroupId: "Tipo de dock",
     operationType: "Tipo de operación",
     startTime: "Horario"
   });
@@ -27,6 +27,13 @@ async function createAppointment(data) {
     throw new AppError("El horario seleccionado no es válido.");
   }
 
+  // Comparación de instantes reales: es correcta sin importar en qué
+  // zona horaria corra el servidor, siempre que el horario elegido haya
+  // sido calculado en hora de Buenos Aires (ver slot.service.js).
+  if (parsedStartTime.getTime() < Date.now()) {
+    throw new AppError("No se puede reservar un turno en el pasado.");
+  }
+
   return await prisma.$transaction(async (tx) => {
 
     const [dockGroup, vehicleType, warehouse, supplier] = await Promise.all([
@@ -37,7 +44,7 @@ async function createAppointment(data) {
     ]);
 
     if (!dockGroup) {
-      throw new AppError("El Dock Group seleccionado no existe.");
+      throw new AppError("El tipo de dock seleccionado no existe.");
     }
 
     if (!vehicleType) {
@@ -52,6 +59,21 @@ async function createAppointment(data) {
       throw new AppError("El proveedor seleccionado no existe.");
     }
 
+    const minutes =
+      operationType === "LOAD"
+        ? vehicleType.loadingMinutes
+        : vehicleType.unloadingMinutes;
+
+    if (!minutes || minutes <= 0) {
+      throw new AppError(
+        "El tipo de vehículo no tiene configurada una duración válida para esta operación."
+      );
+    }
+
+    const endTime = new Date(
+      parsedStartTime.getTime() + minutes * 60 * 1000
+    );
+
     const capacity = await tx.dock.count({
       where: {
         groupId: dockGroupId,
@@ -59,30 +81,28 @@ async function createAppointment(data) {
       }
     });
 
-    const reserved = await tx.appointment.count({
+    // Todos los turnos del dock group (cualquier tipo de operación)
+    // comparten los mismos docks físicos, así que la capacidad se
+    // calcula por superposición de horario, no por igualdad exacta de
+    // startTime ni por tipo de operación.
+    const overlapping = await tx.appointment.count({
       where: {
         dockGroupId,
-        startTime: parsedStartTime,
         status: {
           not: "CANCELLED"
+        },
+        startTime: {
+          lt: endTime
+        },
+        endTime: {
+          gt: parsedStartTime
         }
       }
     });
 
-    if (reserved >= capacity) {
+    if (overlapping >= capacity) {
       throw new AppError("No hay capacidad disponible para ese horario.");
     }
-
-    const minutes =
-      operationType === "LOAD"
-        ? vehicleType.loadingMinutes
-        : vehicleType.unloadingMinutes;
-
-    const endTime = new Date(parsedStartTime);
-
-    endTime.setMinutes(
-      endTime.getMinutes() + minutes
-    );
 
     const appointment =
       await tx.appointment.create({

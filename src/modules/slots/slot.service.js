@@ -1,11 +1,12 @@
 const prisma = require("../../lib/prisma");
 const { AppError, requireFields } = require("../../lib/errors");
+const { buenosAiresDateTime } = require("../../lib/timezone");
 
 
 const getAvailableSlots = async (params) => {
 
   requireFields(params, {
-    dockGroupId: "Dock Group",
+    dockGroupId: "Tipo de dock",
     vehicleTypeId: "Tipo de vehículo",
     operationType: "Tipo de operación",
     date: "Fecha"
@@ -18,8 +19,10 @@ const getAvailableSlots = async (params) => {
     date
   } = params;
 
-  const workStart = new Date(`${date}T08:00:00.000Z`);
-  const workEnd = new Date(`${date}T17:00:00.000Z`);
+  // El horario laboral (08:00 a 17:00) es siempre hora de Buenos Aires,
+  // más allá de en qué zona horaria corra el servidor.
+  const workStart = buenosAiresDateTime(date, "08:00:00.000");
+  const workEnd = buenosAiresDateTime(date, "17:00:00.000");
 
   if (Number.isNaN(workStart.getTime()) || Number.isNaN(workEnd.getTime())) {
     throw new AppError("La fecha indicada no es válida.");
@@ -38,8 +41,7 @@ const getAvailableSlots = async (params) => {
   const docks = await prisma.dock.findMany({
     where: {
       groupId: dockGroupId,
-      active: true,
-    
+      active: true
     }
   });
 
@@ -60,24 +62,30 @@ const getAvailableSlots = async (params) => {
     );
   }
 
+  // Todos los turnos del dock group (sin importar el tipo de operación)
+  // compiten por los mismos docks físicos, así que traemos todos los que
+  // se superponen con la jornada, no solo los del tipo de operación
+  // consultado.
   const appointments = await prisma.appointment.findMany({
     where: {
       dockGroupId,
-      operationType,
       status: {
         not: "CANCELLED"
+      },
+      startTime: {
+        lt: workEnd
+      },
+      endTime: {
+        gt: workStart
       }
+    },
+    select: {
+      startTime: true,
+      endTime: true
     }
   });
 
-  const reservationsBySlot = {};
-
-  appointments.forEach((appointment) => {
-    const key = appointment.startTime.toISOString();
-
-    reservationsBySlot[key] =
-      (reservationsBySlot[key] || 0) + 1;
-  });
+  const now = new Date();
 
   const slots = [];
 
@@ -92,16 +100,24 @@ const getAvailableSlots = async (params) => {
       break;
     }
 
-    const key = current.toISOString();
+    // No ofrecer horarios que ya pasaron (comparando instantes reales,
+    // así que es correcto sin importar la zona horaria del servidor).
+    if (current.getTime() > now.getTime()) {
 
-    const reserved = reservationsBySlot[key] || 0;
+      const reserved = appointments.filter(
+        (appointment) =>
+          appointment.startTime < slotEnd &&
+          appointment.endTime > current
+      ).length;
 
-    slots.push({
-      time: current.toISOString(),
-      capacity,
-      reserved,
-      available: capacity - reserved
-    });
+      slots.push({
+        time: current.toISOString(),
+        capacity,
+        reserved,
+        available: capacity - reserved
+      });
+
+    }
 
     current = slotEnd;
   }

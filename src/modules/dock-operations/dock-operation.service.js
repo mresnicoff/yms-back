@@ -83,13 +83,14 @@ const assignDock = async (data) => {
       );
     }
 
+    // Los docks ya no están atados a un único tipo de operación: un
+    // grupo puede compartir el mismo pool de docks entre carga y
+    // descarga, así que cualquier dock libre del grupo sirve.
     const dock =
       await tx.dock.findFirst({
         where: {
           groupId:
             appointment.dockGroupId,
-          operationType:
-            appointment.operationType,
           status: "FREE",
           active: true
         },
@@ -332,14 +333,15 @@ const finishDockOperation =
           };
         }
 
+        // El dock que se libera puede atender al siguiente turno en
+        // espera sin importar su tipo de operación (carga o descarga),
+        // ya que el grupo comparte el mismo pool físico de docks.
         const nextAppointment =
           await tx.appointment
             .findFirst({
               where: {
                 dockGroupId:
                   completedAppointment.dockGroupId,
-                operationType:
-                  completedAppointment.operationType,
                 status:
                   "WAITING_DOCK"
               },

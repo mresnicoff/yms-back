@@ -4,6 +4,9 @@ const prisma =
 async function getAll() {
 
   return prisma.dockGroup.findMany({
+    where: {
+      active: true
+    },
     include: {
       warehouse: true
     },
