@@ -20,6 +20,7 @@ const documentRoutes = require("./modules/documents/document.routes");
 const documentTypeRoutes = require("./modules/document-types/document-type.routes");
 const userRoutes = require("./modules/users/user.routes");
 const dockRoutes = require("./modules/docks/dock.routes");
+const dashboardRoutes = require("./modules/dashboard/dashboard.routes");
 
 const app = express();
 
@@ -81,6 +82,7 @@ app.use("/api/trucks", truckRoutes);
 app.use("/api/slots", slotRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/docks", dockRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 
 app.get("/api/health", (req, res) => {
   res.status(200).json({ status: "ok" });
