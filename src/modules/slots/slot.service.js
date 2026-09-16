@@ -1,6 +1,9 @@
 const prisma = require("../../lib/prisma");
 const { AppError, requireFields } = require("../../lib/errors");
-const { buenosAiresDateTime } = require("../../lib/timezone");
+const {
+  buenosAiresDateTime,
+  getWeekdayFromDateString
+} = require("../../lib/timezone");
 
 
 const getAvailableSlots = async (params) => {
@@ -19,10 +22,30 @@ const getAvailableSlots = async (params) => {
     date
   } = params;
 
-  // El horario laboral (08:00 a 17:00) es siempre hora de Buenos Aires,
-  // más allá de en qué zona horaria corra el servidor.
-  const workStart = buenosAiresDateTime(date, "08:00:00.000");
-  const workEnd = buenosAiresDateTime(date, "17:00:00.000");
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    throw new AppError("La fecha indicada no es válida.");
+  }
+
+  // El horario de atención es configurable por dock group y por día de la
+  // semana (módulo de warehouses), siempre interpretado en hora de Buenos
+  // Aires más allá de en qué zona horaria corra el servidor.
+  const weekday = getWeekdayFromDateString(date);
+
+  const daySchedule = await prisma.dockGroupSchedule.findUnique({
+    where: {
+      dockGroupId_weekday: {
+        dockGroupId,
+        weekday
+      }
+    }
+  });
+
+  if (!daySchedule || daySchedule.closed) {
+    return [];
+  }
+
+  const workStart = buenosAiresDateTime(date, daySchedule.startTime);
+  const workEnd = buenosAiresDateTime(date, daySchedule.endTime);
 
   if (Number.isNaN(workStart.getTime()) || Number.isNaN(workEnd.getTime())) {
     throw new AppError("La fecha indicada no es válida.");

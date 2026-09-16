@@ -1,5 +1,11 @@
 const prisma = require("../../lib/prisma");
 const { AppError, requireFields } = require("../../lib/errors");
+const {
+  buenosAiresDateTime,
+  getBuenosAiresDateParts
+} = require("../../lib/timezone");
+
+const pad = (n) => String(n).padStart(2, "0");
 
 async function createAppointment(data) {
 
@@ -73,6 +79,37 @@ async function createAppointment(data) {
     const endTime = new Date(
       parsedStartTime.getTime() + minutes * 60 * 1000
     );
+
+    // El horario de atención es configurable por dock group y por día de
+    // la semana (módulo de warehouses). Se valida acá también, no solo en
+    // el armado de slots, porque el turno se crea con el startTime elegido
+    // por el cliente y no debería poder salirse del horario permitido.
+    const { year, month, day, weekday } =
+      getBuenosAiresDateParts(parsedStartTime);
+
+    const dateStr = `${year}-${pad(month)}-${pad(day)}`;
+
+    const daySchedule = await tx.dockGroupSchedule.findUnique({
+      where: {
+        dockGroupId_weekday: {
+          dockGroupId,
+          weekday
+        }
+      }
+    });
+
+    if (!daySchedule || daySchedule.closed) {
+      throw new AppError("El dock group elegido no atiende ese día.");
+    }
+
+    const workStart = buenosAiresDateTime(dateStr, daySchedule.startTime);
+    const workEnd = buenosAiresDateTime(dateStr, daySchedule.endTime);
+
+    if (parsedStartTime < workStart || endTime > workEnd) {
+      throw new AppError(
+        "El horario elegido está fuera del horario de atención del dock group ese día."
+      );
+    }
 
     const capacity = await tx.dock.count({
       where: {

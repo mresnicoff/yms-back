@@ -132,11 +132,36 @@ model DockGroup {
 
   docks        Dock[]
   appointments Appointment[]
+  schedules    DockGroupSchedule[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([warehouseId])
+}
+
+model DockGroupSchedule {
+  id String @id @default(uuid())
+
+  dockGroupId String
+  dockGroup   DockGroup @relation(fields: [dockGroupId], references: [id])
+
+  // 0 = domingo ... 6 = sábado (mismo criterio que Date.getDay() en JS),
+  // siempre interpretado en hora de Buenos Aires.
+  weekday Int
+
+  // Horario de atención en formato "HH:MM", hora de Buenos Aires.
+  // Nulos cuando closed = true (el dock group no atiende ese día).
+  startTime String?
+  endTime   String?
+
+  closed Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([dockGroupId, weekday])
+  @@index([dockGroupId])
 }
 
 model Dock {
