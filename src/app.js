@@ -18,6 +18,7 @@ const dockGroupRoutes = require("./modules/dock-groups/dock-group.routes");
 const truckRoutes = require("./modules/trucks/truck.routes");
 const documentRoutes = require("./modules/documents/document.routes");
 const documentTypeRoutes = require("./modules/document-types/document-type.routes");
+const userRoutes = require("./modules/users/user.routes");
 
 const app = express();
 
@@ -77,6 +78,7 @@ app.use("/api/required-documents", requiredDocumentRoutes);
 app.use("/api/dock-groups", dockGroupRoutes);
 app.use("/api/trucks", truckRoutes);
 app.use("/api/slots", slotRoutes);
+app.use("/api/users", userRoutes);
 
 app.get("/api/health", (req, res) => {
   res.status(200).json({ status: "ok" });
