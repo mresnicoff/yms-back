@@ -21,6 +21,26 @@ async function getAll(req, res) {
 
 }
 
+async function create(req, res) {
+
+  try {
+
+    const supplier =
+      await supplierService.create(req.body);
+
+    res.status(201).json(
+      supplier
+    );
+
+  } catch (error) {
+
+    sendError(res, error, "No se pudo crear el proveedor.");
+
+  }
+
+}
+
 module.exports = {
-  getAll
+  getAll,
+  create
 };

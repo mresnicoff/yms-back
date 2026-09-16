@@ -18,6 +18,12 @@ const SELECT_SAFE_FIELDS = {
       code: true,
       name: true
     }
+  },
+  supplier: {
+    select: {
+      id: true,
+      name: true
+    }
   }
 };
 
@@ -40,6 +46,31 @@ const getRoles = async () => {
       name: "asc"
     }
   });
+
+};
+
+// El rol Proveedor siempre debe quedar asociado a un Supplier (para que
+// el usuario solo pueda ver/pedir turnos de ese proveedor). Para
+// cualquier otro rol, el usuario no debe quedar ligado a ningún proveedor.
+const resolveSupplierId = async (role, data) => {
+
+  if (role.code !== "SUPPLIER") {
+    return null;
+  }
+
+  if (!data.supplierId) {
+    throw new AppError("Para el rol Proveedor hay que seleccionar o crear un proveedor.");
+  }
+
+  const supplier = await prisma.supplier.findUnique({
+    where: { id: data.supplierId }
+  });
+
+  if (!supplier) {
+    throw new AppError("El proveedor seleccionado no existe.");
+  }
+
+  return supplier.id;
 
 };
 
@@ -75,6 +106,8 @@ const create = async (data) => {
     throw new AppError("Ya existe un usuario con ese email.");
   }
 
+  const supplierId = await resolveSupplierId(role, data);
+
   const passwordHash = await bcrypt.hash(password, 10);
 
   return prisma.user.create({
@@ -83,7 +116,8 @@ const create = async (data) => {
       lastName,
       email,
       passwordHash,
-      roleId
+      roleId,
+      supplierId
     },
     select: SELECT_SAFE_FIELDS
   });
@@ -136,6 +170,8 @@ const update = async (id, data, requestingUserId) => {
     throw new AppError("Ya existe otro usuario con ese email.");
   }
 
+  const supplierId = await resolveSupplierId(role, data);
+
   return prisma.user.update({
     where: { id },
     data: {
@@ -143,7 +179,8 @@ const update = async (id, data, requestingUserId) => {
       lastName,
       email,
       roleId,
-      status
+      status,
+      supplierId
     },
     select: SELECT_SAFE_FIELDS
   });
