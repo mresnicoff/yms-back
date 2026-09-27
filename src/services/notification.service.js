@@ -32,7 +32,7 @@ const formatPhoneE164 = (phone) => {
     cleanPhone = `549${cleanPhone}`;
   }
 
-  return cleanPhone;
+  return `+${cleanPhone}`;
 };
 
 const sendDockAssignment = async ({ phone, driverName, dockCode }) => {
