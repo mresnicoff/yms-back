@@ -123,10 +123,27 @@ async function syncInfologTrips(data) {
     dockGroupId
   });
 
-  const rows = await fetchViajes({
-    actividad: process.env.INFOLOG_ACTIVIDAD || "001",
-    dias: Number(process.env.INFOLOG_DIAS_ADELANTE) || 30
-  });
+  let rows;
+
+  try {
+
+    rows = await fetchViajes({
+      actividad: process.env.INFOLOG_ACTIVIDAD || "001",
+      dias: Number(process.env.INFOLOG_DIAS_ADELANTE) || 30
+    });
+
+  } catch (error) {
+
+    // Sin esto, cualquier falla de Snowflake (credenciales faltantes, caída
+    // de red, error de la consulta) queda enmascarada por el mensaje
+    // genérico del controller y no se puede diagnosticar desde el frontend.
+    console.error("Error consultando Snowflake (Infolog)", error);
+
+    throw new AppError(
+      `No se pudo conectar con Snowflake: ${error.message}`
+    );
+
+  }
 
   const summary = {
     skipped: false,

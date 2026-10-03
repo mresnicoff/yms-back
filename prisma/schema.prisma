@@ -378,6 +378,11 @@ model Atraco {
 
   llavesOk Boolean
 
+  // Hora real en la que ocurrió el Atraco. Se precarga con la hora actual
+  // en el frontend, pero es editable: si el operador lo carga más tarde
+  // (se la "comieron"), puede corregirla a la hora real.
+  horaAtraco DateTime @default(now())
+
   // Se carga acá una sola vez y se reutiliza de solo lectura en el
   // Check-Out (checkoutMode = CLIENT_PALLETS), no se vuelve a pedir.
   clienteFinal String

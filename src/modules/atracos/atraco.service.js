@@ -21,6 +21,7 @@ const createAtraco = async (data) => {
     checkInId,
     cunasColocadas,
     llavesOk,
+    horaAtraco,
     clienteFinal,
     receptor,
     auditor,
@@ -35,6 +36,20 @@ const createAtraco = async (data) => {
     Number(cunasColocadas) < 0
   ) {
     throw new AppError("La cantidad de cuñas colocadas no es válida.");
+  }
+
+  // Se precarga con la hora actual en el frontend, pero es editable (por si
+  // el operador lo carga más tarde y la quiere corregir a la hora real).
+  let horaAtracoDate = new Date();
+
+  if (horaAtraco !== undefined && horaAtraco !== null && horaAtraco !== "") {
+
+    horaAtracoDate = new Date(horaAtraco);
+
+    if (Number.isNaN(horaAtracoDate.getTime())) {
+      throw new AppError("La hora del Atraco no es válida.");
+    }
+
   }
 
   return prisma.$transaction(async (tx) => {
@@ -57,6 +72,7 @@ const createAtraco = async (data) => {
         checkInId,
         cunasColocadas: Number(cunasColocadas),
         llavesOk: Boolean(llavesOk),
+        horaAtraco: horaAtracoDate,
         clienteFinal,
         receptor,
         auditor,
