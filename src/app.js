@@ -21,6 +21,8 @@ const documentTypeRoutes = require("./modules/document-types/document-type.route
 const userRoutes = require("./modules/users/user.routes");
 const dockRoutes = require("./modules/docks/dock.routes");
 const dashboardRoutes = require("./modules/dashboard/dashboard.routes");
+const atracoRoutes = require("./modules/atracos/atraco.routes");
+const infologRoutes = require("./modules/infolog/infolog.routes");
 
 const app = express();
 
@@ -83,6 +85,8 @@ app.use("/api/slots", slotRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/docks", dockRoutes);
 app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/atracos", atracoRoutes);
+app.use("/api/infolog", infologRoutes);
 
 app.get("/api/health", (req, res) => {
   res.status(200).json({ status: "ok" });

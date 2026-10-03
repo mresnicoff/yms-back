@@ -16,9 +16,11 @@ const getActiveOperations =
           include: {
             appointment: {
               include: {
-                supplier: true
+                supplier: true,
+                warehouse: true
               }
-            }
+            },
+            atraco: true
           }
         }
       },

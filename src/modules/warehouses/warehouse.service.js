@@ -76,7 +76,7 @@ async function create(data) {
     name: "Nombre"
   });
 
-  const { code, name, address } = data;
+  const { code, name, address, checkoutMode } = data;
 
   const existing = await prisma.warehouse.findUnique({
     where: { code }
@@ -86,11 +86,16 @@ async function create(data) {
     throw new AppError("Ya existe un depósito con ese código.");
   }
 
+  if (checkoutMode && !["DISPATCH", "CLIENT_PALLETS"].includes(checkoutMode)) {
+    throw new AppError("El modo de Check-Out indicado no es válido.");
+  }
+
   return prisma.warehouse.create({
     data: {
       code,
       name,
-      address: address || null
+      address: address || null,
+      ...(checkoutMode ? { checkoutMode } : {})
     }
   });
 
@@ -106,7 +111,7 @@ async function update(id, data) {
     throw new AppError("El depósito indicado no existe.", 404);
   }
 
-  const { code, name, address, active } = data;
+  const { code, name, address, active, checkoutMode } = data;
 
   if (code && code !== warehouse.code) {
 
@@ -120,13 +125,18 @@ async function update(id, data) {
 
   }
 
+  if (checkoutMode && !["DISPATCH", "CLIENT_PALLETS"].includes(checkoutMode)) {
+    throw new AppError("El modo de Check-Out indicado no es válido.");
+  }
+
   return prisma.warehouse.update({
     where: { id },
     data: {
       ...(code !== undefined ? { code } : {}),
       ...(name !== undefined ? { name } : {}),
       ...(address !== undefined ? { address: address || null } : {}),
-      ...(active !== undefined ? { active: Boolean(active) } : {})
+      ...(active !== undefined ? { active: Boolean(active) } : {}),
+      ...(checkoutMode !== undefined ? { checkoutMode } : {})
     }
   });
 

@@ -57,6 +57,11 @@ enum UserStatus {
   INACTIVE
   BLOCKED
 }
+
+enum CheckoutMode {
+  DISPATCH
+  CLIENT_PALLETS
+}
 model Document {
   id String @id @default(uuid())
 
@@ -109,6 +114,14 @@ model Warehouse {
   address String?
 
   active Boolean @default(true)
+
+  // Elige qué formulario de Check-Out se muestra: el de siempre (hoja de
+  // ruta + precintos) o el del flujo Fátima/Infolog (cliente + pallets).
+  checkoutMode CheckoutMode @default(DISPATCH)
+
+  // Última vez que se sincronizaron viajes de Infolog para este depósito.
+  // Se usa para no re-consultar Snowflake si ya se hizo hace poco.
+  infologLastSyncedAt DateTime?
 
   dockGroups   DockGroup[]
   appointments Appointment[]
@@ -250,6 +263,9 @@ model Truck {
   active Boolean @default(true)
 
   checkIns CheckIn[]
+  // Check-Ins donde este Truck participó como semi-acoplado (no como
+  // tractor). Un mismo Truck puede ser tractor en un viaje y semi en otro.
+  semiCheckIns CheckIn[] @relation("CheckInSemiTruck")
   documents Document[]
 
   createdAt DateTime @default(now())
@@ -280,8 +296,10 @@ model Appointment {
   supplierId String
   supplier   Supplier @relation(fields: [supplierId], references: [id])
 
-  vehicleTypeId String
-  vehicleType   VehicleType @relation(fields: [vehicleTypeId], references: [id])
+  // Opcional porque los viajes que llegan desde Infolog no traen tipo de
+  // vehículo: se completa en el Check-In junto con el chofer y las patentes.
+  vehicleTypeId String?
+  vehicleType   VehicleType? @relation(fields: [vehicleTypeId], references: [id])
 
   warehouseId String
   warehouse   Warehouse @relation(fields: [warehouseId], references: [id])
@@ -295,6 +313,12 @@ model Appointment {
   endTime   DateTime
 
   status AppointmentStatus @default(SCHEDULED)
+
+  // ID de viaje que manda Infolog (NUMTOU). Único y opcional: solo lo
+  // tienen los turnos que se crearon a partir de un viaje de Infolog, y
+  // evita importar el mismo viaje dos veces. Un turno con este campo
+  // cargado es, por definición, un turno de origen Infolog.
+  externalTripId String? @unique
 
   checkIn CheckIn?
 
@@ -317,6 +341,13 @@ model CheckIn {
   truckId String
   truck Truck @relation(fields: [truckId], references: [id])
 
+  // Semi-acoplado de este viaje puntual (flujo Fátima/Infolog). Va acá y
+  // no en el camión porque un mismo tractor puede llevar semis distintos
+  // en cada viaje. Se modela como un Truck más, así hereda el control de
+  // documentación obligatoria igual que cualquier camión.
+  semiTruckId String?
+  semiTruck Truck? @relation("CheckInSemiTruck", fields: [semiTruckId], references: [id])
+
   driverId String?
   driver Driver? @relation(fields: [driverId], references: [id])
 
@@ -326,12 +357,39 @@ model CheckIn {
   createdBy User? @relation("UserCheckIns", fields: [createdById], references: [id])
 
   dockOperation DockOperation?
+  atraco        Atraco?
 
   createdAt DateTime @default(now())
 
   @@index([truckId])
+  @@index([semiTruckId])
   @@index([driverId])
   @@index([arrivalTime])
+}
+
+model Atraco {
+  id String @id @default(uuid())
+
+  checkInId String @unique
+  checkIn   CheckIn @relation(fields: [checkInId], references: [id])
+
+  // Cuántas cuñas se colocaron (0 = no se colocó ninguna).
+  cunasColocadas Int
+
+  llavesOk Boolean
+
+  // Se carga acá una sola vez y se reutiliza de solo lectura en el
+  // Check-Out (checkoutMode = CLIENT_PALLETS), no se vuelve a pedir.
+  clienteFinal String
+
+  receptor String
+  auditor  String
+  cargador String
+
+  createdById String?
+  createdBy   User? @relation("UserAtracos", fields: [createdById], references: [id])
+
+  createdAt DateTime @default(now())
 }
 
 model DockOperation {
@@ -383,6 +441,8 @@ model User {
 
   dockAssignments DockOperation[] @relation("UserDockAssignments")
 
+  atracosCreated Atraco[] @relation("UserAtracos")
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -413,9 +473,16 @@ model Dispatch {
 
   dockOperation DockOperation @relation(fields: [dockOperationId], references: [id])
 
-  routeSheetNumber String
+  // Opcional porque el flujo Fátima/Infolog (checkoutMode = CLIENT_PALLETS)
+  // no pide hoja de ruta: en ese modo se completa `pallets` en su lugar.
+  routeSheetNumber String?
 
   sealNumbers String[]
+
+  // Cantidad de pallets, alternativo a routeSheetNumber/sealNumbers cuando
+  // checkoutMode = CLIENT_PALLETS. El cliente de ese checkout ya quedó
+  // cargado en Atraco, no se duplica acá.
+  pallets Int?
 
   checkedOutAt DateTime
 
