@@ -3,10 +3,11 @@ const { AppError, requireFields } = require("../../lib/errors");
 const { fetchViajes } = require("../../lib/snowflake");
 const { buenosAiresDateTime } = require("../../lib/timezone");
 
-// No hace falta un polling constante: alcanza con consultar Snowflake
-// cuando un operador está por hacer un Check-In. Si ya se sincronizó hace
-// poco, no tiene sentido volver a pegarle a Snowflake.
-const SYNC_COOLDOWN_MS = 30 * 60 * 1000;
+// No hace falta un polling constante: alcanza con consultar Snowflake cada
+// vez que un operador entra a la pantalla de Check-In (sincronización
+// automática, sin botón). Si ya se sincronizó hace menos de una hora, no
+// tiene sentido volver a pegarle a Snowflake.
+const SYNC_COOLDOWN_MS = 60 * 60 * 1000;
 
 // Duración provisoria del turno mientras no se conoce el tipo de
 // vehículo (Infolog no lo manda; se completa recién en el Check-In). Una

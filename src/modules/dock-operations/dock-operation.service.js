@@ -257,7 +257,8 @@ const finishDockOperation =
                       include: {
                         dockGroup: true
                       }
-                    }
+                    },
+                    atraco: true
                   }
                 }
               }
@@ -275,6 +276,15 @@ const finishDockOperation =
         ) {
           throw new AppError(
             "Esta operación de dock ya fue finalizada."
+          );
+        }
+
+        // El Atraco es un paso fijo entre Check-In y Check-Out para todos
+        // los viajes (carga o descarga, cualquier depósito): no se puede
+        // finalizar la operación sin haberlo completado antes.
+        if (!dockOperation.checkIn.atraco) {
+          throw new AppError(
+            "Este viaje requiere completar el Atraco antes del Check-Out."
           );
         }
 

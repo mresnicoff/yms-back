@@ -38,10 +38,10 @@ const createDispatch =
     const { checkIn } = dockOperation;
     const { appointment } = checkIn;
 
-    // El Atraco es un paso fijo del flujo Fátima/Infolog: si el turno vino
-    // de Infolog (tiene externalTripId), no se puede hacer Check-Out sin
-    // haberlo completado antes.
-    if (appointment.externalTripId && !checkIn.atraco) {
+    // El Atraco es un paso fijo del flujo entre Check-In y Check-Out para
+    // todos los viajes (no depende del depósito ni de si el turno vino de
+    // Infolog): no se puede despachar sin haberlo completado antes.
+    if (!checkIn.atraco) {
       throw new AppError(
         "Este viaje requiere completar el Atraco antes del Check-Out."
       );
