@@ -15,6 +15,20 @@ const SYNC_COOLDOWN_MS = 60 * 60 * 1000;
 // tiempos de arrivalTime / DockOperation, no este estimado.
 const DURACION_PROVISORIA_MIN = 60;
 
+// Código para la Hoja de Ruta: "1" + los 4 dígitos de la ruta (RUTA/TOULIV,
+// viene como N_RUTA en la consulta). Ej: ruta 3245 -> "13245".
+function buildExternalRouteCode(nRuta) {
+
+  if (nRuta === undefined || nRuta === null || nRuta === "") return null;
+
+  const digits = String(nRuta).trim();
+
+  if (!/^\d+$/.test(digits)) return null;
+
+  return "1" + digits.padStart(4, "0");
+
+}
+
 function parseFechaCarga(fechaCarga) {
   // Viene como "DD/MM/YYYY" desde Snowflake (TO_CHAR del script de
   // referencia).
@@ -27,6 +41,30 @@ function parseFechaCarga(fechaCarga) {
   return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
 }
 
+// Para los turnos de Infolog, el campo Proveedor del turno pasa a ser el
+// código de Hoja de Ruta (no el cliente final, que se carga a mano en el
+// Atraco): se busca/crea un Supplier cuyo nombre es ese código.
+async function findOrCreateSupplierForRoute(routeCode) {
+
+  const taxId = `INFOLOG-RUTA-${routeCode}`;
+
+  const existing = await prisma.supplier.findUnique({
+    where: { taxId }
+  });
+
+  if (existing) return existing;
+
+  return prisma.supplier.create({
+    data: {
+      name: routeCode,
+      taxId
+    }
+  });
+
+}
+
+// Fallback para cuando Infolog no manda la ruta: se usa el cliente, como
+// antes, para no perder el viaje.
 async function findOrCreateSupplierForCliente({ codCliente, nombreCliente }) {
 
   const codigo = (codCliente || "").trim() || "SIN_CODIGO";
@@ -166,6 +204,7 @@ async function syncInfologTrips(data) {
       }
 
       const externalTripId = String(row.NUMTOU);
+      const externalRouteCode = buildExternalRouteCode(row.N_RUTA);
 
       const fechaIso = parseFechaCarga(row.FECHA_CARGA);
 
@@ -179,10 +218,12 @@ async function syncInfologTrips(data) {
         startTime.getTime() + DURACION_PROVISORIA_MIN * 60 * 1000
       );
 
-      const supplier = await findOrCreateSupplierForCliente({
-        codCliente: row.COD_CLIENTE,
-        nombreCliente: row.NOMBRE_CLIENTE
-      });
+      const supplier = externalRouteCode
+        ? await findOrCreateSupplierForRoute(externalRouteCode)
+        : await findOrCreateSupplierForCliente({
+            codCliente: row.COD_CLIENTE,
+            nombreCliente: row.NOMBRE_CLIENTE
+          });
 
       const existing = await prisma.appointment.findUnique({
         where: { externalTripId }
