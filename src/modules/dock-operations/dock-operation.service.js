@@ -359,7 +359,11 @@ const finishDockOperation =
               },
               include: {
                 supplier: true,
-                checkIn: true
+                checkIn: {
+                  include: {
+                    driver: true
+                  }
+                }
               },
               orderBy: {
                 createdAt:
@@ -418,6 +422,43 @@ const finishDockOperation =
                 "IN_OPERATION"
             }
           });
+
+        // Igual que en la asignación normal: el chofer del próximo turno
+        // recibe por WhatsApp el dock que se acaba de liberar.
+        const nextDriver =
+          nextAppointment.checkIn
+            .driver;
+
+        if (
+          nextDriver &&
+          nextDriver.phone
+        ) {
+
+          try {
+
+            await notificationService
+              .sendDockAssignment({
+                phone:
+                  nextDriver.phone,
+
+                driverName:
+                  `${nextDriver.firstName} ${nextDriver.lastName ?? ""}`.trim(),
+
+                dockCode:
+                  dock.code
+              });
+
+          } catch (error) {
+
+            console.error(
+              "Error enviando WhatsApp",
+              error.response?.data ||
+              error.message
+            );
+
+          }
+
+        }
 
         return {
           finished: true,
