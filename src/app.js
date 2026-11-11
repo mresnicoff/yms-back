@@ -22,6 +22,7 @@ const userRoutes = require("./modules/users/user.routes");
 const dockRoutes = require("./modules/docks/dock.routes");
 const dashboardRoutes = require("./modules/dashboard/dashboard.routes");
 const atracoRoutes = require("./modules/atracos/atraco.routes");
+const slaRoutes = require("./modules/sla/sla.routes");
 const infologRoutes = require("./modules/infolog/infolog.routes");
 
 const app = express();
@@ -86,6 +87,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/docks", dockRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/atracos", atracoRoutes);
+app.use("/api/sla", slaRoutes);
 app.use("/api/infolog", infologRoutes);
 
 app.get("/api/health", (req, res) => {
